@@ -1,0 +1,4 @@
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/hdf5/lib
+#dmd simpletest.d /opt/hdf5/lib/libhdf5.so
+dmd simpletest.d -L-L/opt/hdf5/lib/ -L-lhdf5 -Ihdf5/ -I/opt/hdf5/include
+#-g -w -de
