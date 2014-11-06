@@ -1,5 +1,6 @@
 import std.stdio;
-import src.hdf5.hdf5;
+import hdf5.hdf5;
+import hdf5.H5Dpublic;
 import std.exception;
 import std.string;
 import std.utf;
@@ -38,11 +39,11 @@ int main()
 	auto dataspace_id=H5Screate_simple(2,cast(const ulong*)dims.ptr,cast(const ulong*)NULL);
 	//auto  dataset_id = H5Dcreate2(file_id, "/dset", H5T_STD_I32BE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-   	/* Open an existing file. */
-   	auto file_id = H5Fopen(f_work, H5F_ACC_RDWR, H5P_DEFAULT);
+  /* Open an existing file. */
+  file_id = H5Fopen(f_work, H5F_ACC_RDWR, H5P_DEFAULT);
 
-  	/* Open an existing dataset. */
-   	auto dataset_id = H5Dopen2(file_id, "/dset", H5P_DEFAULT);
+  /* Open an existing dataset. */
+  auto dataset_id = H5Dopen2(file_id, "/dset", H5P_DEFAULT);
 
 
 
@@ -73,6 +74,7 @@ int main()
 
 int createattrib()
 {
+   const FILE="testfile";
    hid_t       file_id, dataset_id, attribute_id, dataspace_id;  /* identifiers */
    hsize_t     dims;
    int         attr_data[2];
@@ -83,21 +85,21 @@ int createattrib()
    attr_data[1] = 200;
 
    /* Open an existing file. */
-   file_id = H5Fopen(FILE, H5F_ACC_RDWR, H5P_DEFAULT);
+   file_id = H5Fopen(cast(const char*)FILE, H5F_ACC_RDWR, H5P_DEFAULT);
 
    /* Open an existing dataset. */
    dataset_id = H5Dopen2(file_id, "/dset", H5P_DEFAULT);
 
    /* Create the data space for the attribute. */
    dims = 2;
-   dataspace_id = H5Screate_simple(1, &dims, NULL);
+   dataspace_id = H5Screate_simple(1, &dims, cast(const ulong*)NULL);
 
    /* Create a dataset attribute. */
    attribute_id = H5Acreate2 (dataset_id, "Units", H5T_STD_I32BE, dataspace_id, 
                              H5P_DEFAULT, H5P_DEFAULT);
 
    /* Write the attribute data. */
-   status = H5Awrite(attribute_id, H5T_NATIVE_INT, attr_data);
+   status = H5Awrite(attribute_id, H5T_NATIVE_INT, cast(const ulong*)attr_data);
 
    /* Close the attribute. */
    status = H5Aclose(attribute_id);
@@ -110,15 +112,17 @@ int createattrib()
 
    /* Close the file. */
    status = H5Fclose(file_id);
+   return status;
 }
 
-int creategroup() {
+int creategroup(string FILE)
+{
 
    hid_t       file_id, group_id;  /* identifiers */
    herr_t      status;
 
    /* Create a new file using default properties. */
-   file_id = H5Fcreate(FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+   file_id = H5Fcreate(cast(const char*)FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
    /* Create a group named "/MyGroup" in the file. */
    group_id = H5Gcreate2(file_id, "/MyGroup", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -128,6 +132,7 @@ int creategroup() {
 
    /* Terminate access to the file. */
    status = H5Fclose(file_id);
+   return status;
 }
 
 
@@ -136,13 +141,14 @@ int creategroup() {
  *  relative names.  It is used in the HDF5 Tutorial.
  */
 
-int creategroupsinfile() {
+int creategroupsinfile(string FILE)
+{
 
    hid_t       file_id, group1_id, group2_id, group3_id;  /* identifiers */
    herr_t      status;
 
    /* Create a new file using default properties. */
-   file_id = H5Fcreate(FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+   file_id = H5Fcreate(cast(const char *)FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
    /* Create group "MyGroup" in the root group using absolute name. */
    group1_id = H5Gcreate2(file_id, "/MyGroup", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -160,6 +166,7 @@ int creategroupsinfile() {
 
    /* Close the file. */
    status = H5Fclose(file_id);
+   return status;
 }
 
 
@@ -168,14 +175,14 @@ int creategroupsinfile() {
  *  It is used in the HDF5 Tutorial.
  */
 
-int createdatasetingroup() {
+int createdatasetingroup(string FILE)
+{
 
    hid_t       file_id, group_id, dataset_id, dataspace_id;  /* identifiers */
    hsize_t     dims[2];
    herr_t      status;
-   int         i, j;
    int         dset1_data[3][3];
-   int         set2_data[2][10];
+   int         dset2_data[2][10];
 
    /* Initialize the first dataset. */
    foreach(i;0.. 3)
@@ -188,20 +195,19 @@ int createdatasetingroup() {
          dset2_data[i][j] = j + 1;
 
    /* Open an existing file. */
-   file_id = H5Fopen(FILE, H5F_ACC_RDWR, H5P_DEFAULT);
+   file_id = H5Fopen(cast(const char*)FILE, H5F_ACC_RDWR, H5P_DEFAULT);
 
    /* Create the data space for the first dataset. */
    dims[0] = 3;
    dims[1] = 3;
-   dataspace_id = H5Screate_simple(2, dims, NULL);
+   dataspace_id = H5Screate_simple(2, cast(const ulong*)dims, cast(const ulong*)NULL);
 
    /* Create a dataset in group "MyGroup". */
    dataset_id = H5Dcreate2(file_id, "/MyGroup/dset1", H5T_STD_I32BE, dataspace_id,
                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
    /* Write the first dataset. */
-   status = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                     dset1_data);
+   status = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,cast(const void*)dset1_data);
 
    /* Close the data space for the first dataset. */
    status = H5Sclose(dataspace_id);
@@ -215,15 +221,14 @@ int createdatasetingroup() {
    /* Create the data space for the second dataset. */
    dims[0] = 2;
    dims[1] = 10;
-   dataspace_id = H5Screate_simple(2, dims, NULL);
+   dataspace_id = H5Screate_simple(2, cast(const ulong*)dims, cast(const ulong*)NULL);
 
    /* Create the second dataset in group "Group_A". */
    dataset_id = H5Dcreate2(group_id, "dset2", H5T_STD_I32BE, dataspace_id, 
                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
    /* Write the second dataset. */
-   status = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                     dset2_data);
+   status = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,cast(const void*)dset2_data);
 
    /* Close the data space for the second dataset. */
    status = H5Sclose(dataspace_id);
@@ -236,6 +241,7 @@ int createdatasetingroup() {
 
    /* Close the file. */
    status = H5Fclose(file_id);
+   return status;
 }
 
 /* 
@@ -245,7 +251,7 @@ int createdatasetingroup() {
  
 
 
-int readwriteslabmain (void)
+int readwriteslabmain ()
 {
     enum
     {
@@ -253,9 +259,9 @@ int readwriteslabmain (void)
       DATASETNAME="IntArray",
       RANK=2,
       DIM0_SUB=3,                         /* subset dimensions */ 
-      DIM1_SUB=4 .
+      DIM1_SUB=4,
       DIM0 =8,                          /* size of dataset */       
-      DIM1=10.
+      DIM1 = 10,
     }
     hsize_t     dims[2];
     hsize_t     dimsm[2];   
@@ -272,7 +278,6 @@ int readwriteslabmain (void)
     hsize_t     offset[2];             /* subset offset in the file */
     hsize_t     stride[2];
     hsize_t     block[2];
-    int         i, j;
 
     
     /*****************************************************************
@@ -285,7 +290,7 @@ int readwriteslabmain (void)
 
     dims[0] = DIM0;
     dims[1] = DIM1;
-    dataspace_id = H5Screate_simple (RANK, dims, NULL); 
+    dataspace_id = H5Screate_simple (RANK, cast(ulong*)dims, cast(ulong*)NULL); 
 
     dataset_id = H5Dcreate2 (file_id, DATASETNAME, H5T_STD_I32BE, dataspace_id,
                             H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -299,8 +304,7 @@ int readwriteslabmain (void)
                data[j][i] = 2;
     }     
 
-    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-                      H5P_DEFAULT, data);
+    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,H5P_DEFAULT,cast(const void*) data);
 
     writefln("\nData Written to File:");
     foreach(i;0..DIM0){
@@ -340,11 +344,10 @@ int readwriteslabmain (void)
 
     dimsm[0] = DIM0_SUB;
     dimsm[1] = DIM1_SUB;
-    memspace_id = H5Screate_simple (RANK, dimsm, NULL); 
+    memspace_id = H5Screate_simple (RANK, cast(const ulong*)dimsm, cast(ulong*)0); 
 
     dataspace_id = H5Dget_space (dataset_id);
-    status = H5Sselect_hyperslab (dataspace_id, H5S_SELECT_SET, offset,
-                                  stride, count, block);
+    status = H5Sselect_hyperslab (dataspace_id, cast(H5S_seloper_t) H5S_SELECT_SET, cast(const ulong*)offset,cast(const ulong*)stride, cast(const ulong*)count, cast(const ulong*)block);
 
     /* Write a subset of data to the dataset, then read the 
        entire dataset back from the file.  */
@@ -356,11 +359,9 @@ int readwriteslabmain (void)
 	   sdata[j][i] = 5;
     }     
 
-    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, memspace_id,
-                       dataspace_id, H5P_DEFAULT, sdata);
+    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, memspace_id,dataspace_id, H5P_DEFAULT, cast(const void*)sdata);
     
-    status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-                       H5P_DEFAULT, rdata);
+    status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,H5P_DEFAULT, cast(void*)rdata);
 
     writefln("\nData in File after Subset is Written:");
     foreach(i;0..DIM0){
@@ -373,7 +374,7 @@ int readwriteslabmain (void)
     status = H5Sclose (dataspace_id);
     status = H5Dclose (dataset_id);
     status = H5Fclose (file_id);
- 
+    return status;
 }
 
 
@@ -386,7 +387,7 @@ int readwriteslabmain (void)
 
 
 
-int createextendibeldatasetmain (void)
+int createextendibeldatasetmain ()
 {
     enum
     {
@@ -399,43 +400,42 @@ int createextendibeldatasetmain (void)
     hid_t        filespace, memspace;
     hid_t        prop;                     
 
-    hsize_t      dims[2]  = {3, 3};           /* dataset dimensions at creation time */		
-    hsize_t      maxdims[2] = {H5S_UNLIMITED, H5S_UNLIMITED};
+    hsize_t      dims[2]  = [3, 3];           /* dataset dimensions at creation time */		
+    hsize_t      maxdims[2] = [H5S_UNLIMITED, H5S_UNLIMITED];
     herr_t       status;                             
-    hsize_t      chunk_dims[2] = {2, 5};
-    int          data[3][3] = { {1, 1, 1},    /* data to write */
-                                {1, 1, 1},
-                                {1, 1, 1} };      
+    hsize_t      chunk_dims[2] = [2, 5];
+    int          data[3][3] = [ [1, 1, 1],    /* data to write */
+                                [1, 1, 1],
+                                [1, 1, 1] ];      
 
     /* Variables used in extending and writing to the extended portion of dataset */
     hsize_t      size[2];
     hsize_t      offset[2];
-    hsize_t      dimsext[2] = {7, 3};         /* extend dimensions */
-    int          dataext[7][3] = { {2, 3, 4}, 
-                                   {2, 3, 4}, 
-                                   {2, 3, 4}, 
-                                   {2, 3, 4}, 
-                                   {2, 3, 4}, 
-                                   {2, 3, 4}, 
-                                   {2, 3, 4} };
+    hsize_t      dimsext[2] = [7, 3];         /* extend dimensions */
+    int          dataext[7][3] = [ [2, 3, 4], 
+                                   [2, 3, 4], 
+                                   [2, 3, 4], 
+                                   [2, 3, 4], 
+                                   [2, 3, 4], 
+                                   [2, 3, 4], 
+                                   [2, 3, 4] ];
 
     /* Variables used in reading data back */
     hsize_t      chunk_dimsr[2];
     hsize_t      dimsr[2];
-    hsize_t      i, j;
     int          rdata[10][3];
     herr_t       status_n;                             
     int          rank, rank_chunk;
 
     /* Create the data space with unlimited dimensions. */
-    dataspace = H5Screate_simple (RANK, dims, maxdims); 
+    dataspace = H5Screate_simple (RANK, cast(const ulong*)dims, cast(const ulong*)maxdims); 
 
     /* Create a new file. If file exists its contents will be overwritten. */
     file = H5Fcreate (FILENAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
     /* Modify dataset creation properties, i.e. enable chunking  */
     prop = H5Pcreate (H5P_DATASET_CREATE);
-    status = H5Pset_chunk (prop, RANK, chunk_dims);
+    status = H5Pset_chunk (prop, RANK,cast(const ulong*) chunk_dims);
 
     /* Create a new dataset within the file using chunk 
        creation properties.  */
@@ -443,8 +443,7 @@ int createextendibeldatasetmain (void)
                          H5P_DEFAULT, prop, H5P_DEFAULT);
 
     /* Write data to dataset */
-    status = H5Dwrite (dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-                       H5P_DEFAULT, data);
+    status = H5Dwrite (dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,H5P_DEFAULT, cast(const void*)data);
 
     /* Extend the dataset. Dataset becomes 10 x 3  */
     size[0] = dims[0]+ dimsext[0];
@@ -455,15 +454,13 @@ int createextendibeldatasetmain (void)
     filespace = H5Dget_space (dataset);
     offset[0] = 3;
     offset[1] = 0;
-    status = H5Sselect_hyperslab (filespace, H5S_SELECT_SET, offset, NULL,
-                                  dimsext, NULL);  
+    status = H5Sselect_hyperslab (filespace, cast(H5S_seloper_t) H5S_SELECT_SET, cast(ulong*)offset, cast(ulong*)NULL,cast(ulong*)dimsext, cast(ulong*)NULL);  
 
     /* Define memory space */
-    memspace = H5Screate_simple (RANK, dimsext, NULL); 
+    memspace = H5Screate_simple (RANK, cast(ulong*)dimsext, cast(ulong*) NULL); 
 
     /* Write the data to the extended portion of dataset  */
-    status = H5Dwrite (dataset, H5T_NATIVE_INT, memspace, filespace,
-                       H5P_DEFAULT, dataext);
+    status = H5Dwrite (dataset, H5T_NATIVE_INT, memspace, filespace,H5P_DEFAULT,cast(const void*) dataext);
 
     /* Close resources */
     status = H5Dclose (dataset);
@@ -482,16 +479,15 @@ int createextendibeldatasetmain (void)
 
     filespace = H5Dget_space (dataset);
     rank = H5Sget_simple_extent_ndims (filespace);
-    status_n = H5Sget_simple_extent_dims (filespace, dimsr, NULL);
+    status_n = H5Sget_simple_extent_dims (filespace, cast(ulong*)dimsr, cast(ulong*)NULL);
 
     prop = H5Dget_create_plist (dataset);
 
-    if (H5D_CHUNKED == H5Pget_layout (prop)) 
-       rank_chunk = H5Pget_chunk (prop, rank, chunk_dimsr);
+    if (H5D_layout_t.H5D_CHUNKED == H5Pget_layout (prop)) 
+       rank_chunk = H5Pget_chunk (prop, rank, cast(ulong*)chunk_dimsr);
 
-    memspace = H5Screate_simple (rank, dimsr, NULL);
-    status = H5Dread (dataset, H5T_NATIVE_INT, memspace, filespace,
-                      H5P_DEFAULT, rdata);
+    memspace = H5Screate_simple (rank, cast(const ulong*)dimsr, cast(const ulong*)NULL);
+    status = H5Dread (dataset, H5T_NATIVE_INT, memspace, filespace,H5P_DEFAULT, cast(void*)rdata);
 
     writefln("");
     writefln("Dataset: ");
@@ -507,6 +503,7 @@ int createextendibeldatasetmain (void)
     status = H5Sclose (filespace);
     status = H5Sclose (memspace);
     status = H5Fclose (file);
+    return status;
 }
 
 
@@ -529,7 +526,7 @@ int createcompresseddataset()
     hid_t    plist_id; 
 
     size_t   nelmts;
-    unsigned flags, filter_info;
+    uint flags, filter_info;
     H5Z_filter_t filter_type;
 
     herr_t   status;
@@ -537,7 +534,7 @@ int createcompresseddataset()
     hsize_t  cdims[2];
  
     int      idx;
-    int      i,j, numfilt;
+    int      numfilt;
     int      buf[DIM0][DIM1];
     int      rbuf [DIM0][DIM1];
 
@@ -553,14 +550,14 @@ int createcompresseddataset()
     /* Create dataset "Compressed Data" in the group using absolute name.  */
     dims[0] = DIM0;
     dims[1] = DIM1;
-    dataspace_id = H5Screate_simple (RANK, dims, NULL);
+    dataspace_id = H5Screate_simple (RANK, cast(const ulong*)dims, cast(const ulong*)NULL);
 
     plist_id  = H5Pcreate (H5P_DATASET_CREATE);
 
     /* Dataset must be chunked for compression */
     cdims[0] = 20;
     cdims[1] = 20;
-    status = H5Pset_chunk (plist_id, 2, cdims);
+    status = H5Pset_chunk (plist_id, 2, cast(ulong*)cdims);
 
     /* Set ZLIB / DEFLATE Compression using compression level 6.
      * To use SZIP Compression comment out these lines. 
@@ -573,14 +570,13 @@ int createcompresseddataset()
     status = H5Pset_szip (plist_id, szip_options_mask, szip_pixels_per_block);
     */
     
-    dataset_id = H5Dcreate2 (file_id, "Compressed_Data", H5T_STD_I32BE, 
-                            dataspace_id, H5P_DEFAULT, plist_id, H5P_DEFAULT); 
+    dataset_id = H5Dcreate2 (file_id, "Compressed_Data", H5T_STD_I32BE, dataspace_id, H5P_DEFAULT, plist_id, cast(ulong*)H5P_DEFAULT); 
 
     foreach(i;0..DIM0) 
         foreach(j;0..DIM1)
            buf[i][j] = i+j;
 
-    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, buf);
+    status = H5Dwrite (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,cast(void*) buf);
 
     status = H5Sclose (dataspace_id);
     status = H5Dclose (dataset_id);
@@ -599,7 +595,7 @@ int createcompresseddataset()
      
     foreach(i;0..numfilt) {
        nelmts = 0;
-       filter_type = H5Pget_filter2 (plist_id, 0, &flags, &nelmts, NULL, 0, NULL,&filter_info);
+       filter_type = H5Pget_filter2 (plist_id, cast(uint)0, cast(int*)&flags, &nelmts,cast(uint[]) [0], cast(ulong)0L, cast(char[])"",&filter_info);
        writefln("Filter Type: ");
        switch (filter_type) {
          case H5Z_FILTER_DEFLATE:
@@ -613,11 +609,11 @@ int createcompresseddataset()
          }
     }
 
-    status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, 
-                      H5P_DEFAULT, rbuf); 
+    status = H5Dread (dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(void*)rbuf); 
     
     status = H5Dclose (dataset_id);
     status = H5Pclose (plist_id);
     status = H5Fclose (file_id);
+    return status;
 }
 

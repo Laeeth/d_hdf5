@@ -1,0 +1,12 @@
+{
+	"name": "hdf5-d",
+	"description": "D bingings for hdf5.",
+	"authors": ["Stefan Frijters"],
+	"homepage": "https://github.com/SFrijters/hdf5-d",
+	"license": "BSL-1.0",
+	"copyright": "Copyright (c) 2014 Stefan Frijters. All rights reserved.",
+
+	"targetType": "library",
+	"sourcePaths": [ "src" ],
+}
+
