@@ -15,6 +15,8 @@ To Do
 - 2. Unit tests
 - 3. Thoughtfulness about using D CFTE/reflection/templating to make it work better - also variants etc.  Should be able to pass the data structure not cast(ubyte*); should automatically use reflection to deal with structs etc
 
-The one file you need is hdf5.d in the bindings folder
+The one file you need is hdf5.d in the bindings folder.
+
 See some of the example .d files in the d_examples folder for how to use.
+
 Not all of these are finished yet.
