@@ -1,3 +1,0 @@
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/hdf5/lib
-dmd simpletest.d -L-L/usr/lib64/ -L-lhdf5 -Ihdf5/ -I/opt/hdf5/include
-#-g -w -de

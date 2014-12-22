@@ -1,20 +1,27 @@
 hdf5-d
 ========
 
-D bindings for the parallel [HDF5 library](http://www.hdfgroup.org/HDF5/).
+  Ported to D by Laeeth Isharc 2014
+  Borrowed heavily in terms of C API declarations from https://github.com/SFrijters/hdf5-d
+  Stefan Frijters bindings for D
 
-## License
+  I do not think these are complete, and I also wanted to begin to work on a higher level D
+  interface.  Initially just using strings instead of chars, for example.  And exceptions
+  instead of checking status code each time.  Later will add a higher level interface similarly
+  to how it is done in h5py.
 
-These bindings are made available under the [Boost Software License 1.0](http://www.boost.org/LICENSE_1_0.txt).
-HDF5 is subject to [its own license](COPYING).
+  Consider this not even alpha stage.  It probably isn't so far away from being useful though.
+  This is written for Linux and will need modification to work on other platforms.
 
-## Limitations/Known issues
 
-- This set of bindings is based on hdf5-1.8.13.
+  To Do:
+    1. Better exception handling that calls HDF5 to get error and returns appropriate Throwable object
+    2. Unit tests
+    3. Thoughtfulness about using D CFTE/reflection/templating to make it work better - also variants etc
+          should be able to pass the data structure not cast(ubyte*)
+          should automatically use reflection to deal with structs etc
 
-- Similarly to the FORTRAN bindings, it is required to call H5open() manually once before starting to use HDF5. It is recommended to also use H5check_version to check whether the version of these bindings matches the version of the HDF5 library.
 
-- This is a work in progress tested only in the context of its use in [DLBC](https://github.com/SFrijters/DLBC).
-
-- Pull requests to improve these bindings are welcomed!
-
+The one file you need is hdf5.d in the bindings folder
+See some of the example .d files in the d_examples folder for how to use.
+Not all of these are finished yet.

@@ -1,4 +1,0 @@
-dmd grab_examples_hdf5.d -L-lcurl
-dmd grab_examples_c.d -L-lcurl
-dmd grab_examples_c2.d -L-lcurl
-
