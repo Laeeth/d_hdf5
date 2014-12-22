@@ -10,11 +10,11 @@ Ported to D by Laeeth Isharc 2014
 * Consider this not even alpha stage.  It probably isn't so far away from being useful though. This is written for Linux and will need modification to work on other platforms.
 
 
-* To Do
+To Do
 - 1. Better exception handling that calls HDF5 to get error and returns appropriate Throwable object
 - 2. Unit tests
 - 3. Thoughtfulness about using D CFTE/reflection/templating to make it work better - also variants etc.  Should be able to pass the data structure not cast(ubyte*); should automatically use reflection to deal with structs etc
 
-* The one file you need is hdf5.d in the bindings folder
-* See some of the example .d files in the d_examples folder for how to use.
-* Not all of these are finished yet.
+The one file you need is hdf5.d in the bindings folder
+See some of the example .d files in the d_examples folder for how to use.
+Not all of these are finished yet.
