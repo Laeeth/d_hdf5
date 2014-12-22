@@ -1,0 +1,9 @@
+{
+	"name": "d_hdf5",
+	"description": "HDF5 bindings and wrappers for the D Programming Language.",
+	"authors": ["Laeeth Isharc"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"dependencies": {
+	}
+}
