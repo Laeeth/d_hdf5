@@ -13,7 +13,9 @@
 
     This file is intended for use with HDF5 Library version 1.6
 */
-import hdf5;
+import hdf5.bindings.enums;
+import hdf5.bindings.api;
+import hdf5.wrap;
 import std.stdio;
 import std.exception;
 
@@ -57,7 +59,7 @@ int main(string[] args)
     H5P.set_chunk(dcpl, chunk);
 
     // Create the chunked dataset.
-    auto dset = H5D.create2(file, DATASET, H5T_STD_I32LE, space, dcpl);
+    auto dset = H5D.create2(file, DATASET, H5T_STD_I32LE, space, H5P_DEFAULT,dcpl,H5P_DEFAULT);
 
     // Define and select the first part of the hyperslab selection.
     start[0] = 0;
@@ -96,7 +98,7 @@ int main(string[] args)
      * Open file and dataset using the default properties.
      */
     file = H5F.open(fname, H5F_ACC_RDONLY, H5P_DEFAULT);
-    dset = H5D.open(file, DATASET);
+    dset = H5D.open2(file, DATASET,H5P_DEFAULT);
 
     /*
      * Retrieve the dataset creation property list, and print the
@@ -136,7 +138,7 @@ int main(string[] args)
             rdata[i][j] = 0;
 
     // Define and select the hyperslab to use for reading.
-    space = H5Dget_space (dset);
+    space = H5D.get_space (dset);
     start[0] = 0;
     start[1] = 1;
     stride[0] = 4;

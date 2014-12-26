@@ -14,7 +14,8 @@
 
 */
 
-import hdf5;
+import hdf5.bindings.enums;
+import hdf5.wrap;
 import std.stdio;
 
 string f_name="h5ex_d_alloc.h5";

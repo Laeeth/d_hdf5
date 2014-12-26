@@ -1,1 +1,4 @@
 *.h
+dmd.conf
+hdf5.o
+a.out

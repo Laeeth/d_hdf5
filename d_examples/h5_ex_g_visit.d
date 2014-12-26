@@ -9,7 +9,8 @@
 
  ************************************************************/
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.stdio;
 import std.string;
 
@@ -20,12 +21,12 @@ int main(string[] args)
     H5open();
     //open file
     //auto file = H5F.open(fname, H5F_ACC_RDONLY, H5P_DEFAULT);
-    auto file = H5Fopen(toStringz(fname), H5F_ACC_RDONLY, H5P_DEFAULT);
+    auto file = H5F.open(toStringz(fname), H5F_ACC_RDONLY, H5P_DEFAULT);
 
     // Begin iteration using H5Ovisit
     writefln ("Objects in the file:");
     //H5O.visit (file, H5Index.Name, H5IterOrder.Native, &op_func, cast(void*)0);
-    H5Ovisit (file, H5Index.Name, H5IterOrder.Native, &op_func, cast(void*)0);
+    H5Ovisit (file, H5I.ndex.Name, H5IterOrder.Native, &op_func, cast(void*)0);
 
     // Repeat the same process using H5Lvisit
     writefln  ("\nLinks in the file:");

@@ -19,4 +19,10 @@ The one file you need is hdf5.d in the bindings folder.
 
 See some of the example .d files in the d_examples folder for how to use.
 
-Not all of these are finished yet.
+Not all of these are finished yet (some may compile but not yet run properly)
+
+To Get Started.
+- Make sure you have the HDF5 C library - regular and high level - installed and path set up eg LD_LIBRARY_PATH
+- In your project import hdf5.bindings.d and import hd5.wrap.d
+- Low level interface name structure eg H5Oopen.
+- High level interface name structure eg H5O.open

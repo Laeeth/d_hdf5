@@ -19,7 +19,9 @@
   Data conversion is performed during write operation.
  */
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
+import hdf5.bindings.api;
 import std.stdio;
 import std.exception;
 

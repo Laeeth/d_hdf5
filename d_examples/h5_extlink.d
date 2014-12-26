@@ -21,7 +21,8 @@
  * committed Datatype) in another file.
  */
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.string;
 import std.stdio;
 
@@ -56,14 +57,14 @@ enum UD_PLIST_CLASS =66;
 void extlink_example()
 {
     /* Create two files, a source and a target */
-    auto source_file_id = H5Fcreate(SOURCE_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    auto targ_file_id = H5Fcreate(TARGET_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    auto source_file_id = H5F.create(SOURCE_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    auto targ_file_id = H5F.create(TARGET_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
     /* Create a group in the target file for the external link to point to. */
-    auto group_id = H5Gcreate2(targ_file_id, "target_group", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    auto group_id = H5G.create2(targ_file_id, "target_group", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
     /* Close the group and the target file */
-    H5Gclose(group_id);
+    H5G.close(group_id);
 
     /* Create an external link in the source file pointing to the target group.
      * We could instead have created the external link first, then created the
@@ -119,9 +120,9 @@ void extlink_prefix_example()
     /* Create three files, a source and two targets.  The targets will have
      * the same name, but one will be located in the red directory and one will
      * be located in the blue directory */
-    source_file_id = H5Fcreate(PREFIX_SOURCE_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    red_file_id = H5Fcreate("red/prefix_target.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    blue_file_id = H5Fcreate("blue/prefix_target.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    source_file_id = H5F.create(PREFIX_SOURCE_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    red_file_id = H5F.create("red/prefix_target.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    blue_file_id = H5F.create("blue/prefix_target.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
     /* This test needs a red and a blue directory in the filesystem. If they're not present,
      * trying to create the files above will fail.
@@ -147,41 +148,41 @@ void extlink_prefix_example()
 
     /* Now if we traverse the external link, HDF5 will look for an external
      * file named red/prefix_target.h5, which exists.
-     * To pass the group access property list, we need to use H5Gopen2.
+     * To pass the group access property list, we need to use H5G.open2.
      */
-    group_id = H5Gopen2(source_file_id, "ext_link", gapl_id);
+    group_id = H5G.open2(source_file_id, "ext_link", gapl_id);
 
     /* Now we can use the open group ID to create a new group inside the
      * "red" file.
      */
-    group2_id = H5Gcreate2(group_id, "pink", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    group2_id = H5G.Create2(group_id, "pink", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
     /* Close both groups. */
-    H5Gclose(group2_id);
-    H5Gclose(group_id);
+    H5G.close(group2_id);
+    H5G.close(group_id);
 
     /* If we change the prefix, the same external link can find a file in the blue
      * directory.
      */
     H5Pset_elink_prefix(gapl_id, "blue/");
-    group_id = H5Gopen2(source_file_id, "ext_link", gapl_id);
-    group2_id = H5Gcreate2(group_id, "sky blue", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    group_id = H5G.open2(source_file_id, "ext_link", gapl_id);
+    group2_id = H5G.Create2(group_id, "sky blue", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
     /* Close both groups. */
-    H5Gclose(group2_id);
-    H5Gclose(group_id);
+    H5G.close(group2_id);
+    H5G.close(group_id);
 
     /* Each file has had a group created inside it using the same external link. */
-    group_id = H5Gopen2(red_file_id, "pink", H5P_DEFAULT);
-    group2_id = H5Gopen2(blue_file_id, "sky blue", H5P_DEFAULT);
+    group_id = H5G.open2(red_file_id, "pink", H5P_DEFAULT);
+    group2_id = H5G.open2(blue_file_id, "sky blue", H5P_DEFAULT);
 
     /* Clean up our open IDs */
-    H5Gclose(group2_id);
-    H5Gclose(group_id);
-    H5Pclose(gapl_id);
-    H5Fclose(blue_file_id);
-    H5Fclose(red_file_id);
-    H5Fclose(source_file_id);
+    H5G.close(group2_id);
+    H5G.close(group_id);
+    H5P.Close(gapl_id);
+    H5F.close(blue_file_id);
+    H5F.close(red_file_id);
+    H5F.close(source_file_id);
 
     /* User-defined links can expand on the ability to pass in parameters
      * using an access property list; for instance, a user-defined link
@@ -239,35 +240,35 @@ void soft_link_example()
     /* First, create a file and an object within the file for the link to
      * point to.
      */
-    file_id = H5Fcreate(SOFT_LINK_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    group_id = H5Gcreate2(file_id, TARGET_GROUP, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    H5Gclose(group_id);
+    file_id = H5F.create(SOFT_LINK_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    group_id = H5G.create2(file_id, TARGET_GROUP, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5G.close(group_id);
 
     /* This is how we create a normal soft link to the group.
      */
-    H5Lcreate_soft(TARGET_GROUP, file_id, SOFT_LINK_NAME, H5P_DEFAULT, H5P_DEFAULT);
+    H5L.create_soft(TARGET_GROUP, file_id, SOFT_LINK_NAME, H5P_DEFAULT, H5P_DEFAULT);
 
     /* To do the same thing using a user-defined link, we first have to
      * register the link class we defined.
      */
-    H5Lregister(UD_soft_class);
+    H5L.register(UD_soft_class);
 
     /* Now create a user-defined link.  We give it the path to the group
      * as its udata.1
      */
-    H5Lcreate_ud(file_id, UD_SOFT_LINK_NAME, cast(H5LType)UD_SOFT_CLASS, TARGET_GROUP,
+    H5L.create_ud(file_id, UD_SOFT_LINK_NAME, cast(H5LType)UD_SOFT_CLASS, TARGET_GROUP,
                  strlen(TARGET_GROUP) + 1, H5P_DEFAULT, H5P_DEFAULT);
 
     /* We can access the group through the UD soft link like we would through
      * a normal soft link. This link will still dangle if the object's
      * original name is changed or unlinked.
      */
-    group_id = H5Gopen2(file_id, UD_SOFT_LINK_NAME, H5P_DEFAULT);
+    group_id = H5G.open2(file_id, UD_SOFT_LINK_NAME, H5P_DEFAULT);
 
     /* The group is now open normally.  Don't forget to close it! */
-    H5Gclose(group_id);
+    H5G.close(group_id);
 
-    H5Fclose(file_id);
+    H5F.close(file_id);
 }
 
 /* UD_soft_traverse
@@ -284,7 +285,7 @@ extern(C) hid_t UD_soft_traverse(const char *link_name, hid_t cur_group,
     /* Pass the udata straight through to HDF5. If it's invalid, let HDF5
      * return an error.
      */
-    ret_value = H5Oopen(cur_group, target, lapl_id);
+    ret_value = H5O.open(cur_group, target, lapl_id);
     return ret_value;
 }
 
@@ -340,52 +341,51 @@ void hard_link_example()
     /* First, create a file and an object within the file for the link to
      * point to.
      */
-    file_id = H5Fcreate(HARD_LINK_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    group_id = H5Gcreate2(file_id, TARGET_GROUP, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    H5Gclose(group_id);
+    file_id = H5F.create(HARD_LINK_FILE, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    group_id = H5G.create2(file_id, TARGET_GROUP, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5G.close(group_id);
 
     /* This is how we create a normal hard link to the group. This
      * creates a second "name" for the group.
      */
-    H5Lcreate_hard(file_id, TARGET_GROUP, file_id, HARD_LINK_NAME, H5P_DEFAULT, H5P_DEFAULT);
+    H5L.create_hard(file_id, TARGET_GROUP, file_id, HARD_LINK_NAME, H5P_DEFAULT, H5P_DEFAULT);
 
     /* To do the same thing using a user-defined link, we first have to
      * register the link class we defined.
      */
-    H5Lregister(UD_hard_class.ptr);
+    H5L.register(UD_hard_class.ptr);
 
     /* Since hard links link by object address, we'll need to retrieve
      * the target group's address. We do this by calling H5Lget_info
      * on a hard link to the object.
      */
-    H5Lget_info(file_id, TARGET_GROUP, &li, H5P_DEFAULT);
+    H5L,get_info(file_id, TARGET_GROUP, &li, H5P_DEFAULT);
 
     /* Now create a user-defined link.  We give it the group's address
      * as its udata.
      */
-    H5Lcreate_ud(file_id, UD_HARD_LINK_NAME, cast(H5LType)UD_HARD_CLASS, &(li.u.address),
-                 li.u.address.sizeof, H5P_DEFAULT, H5P_DEFAULT);
+    H5L.create_ud(file_id, UD_HARD_LINK_NAME, cast(H5LType)UD_HARD_CLASS, &(li.u.address), li.u.address.sizeof, H5P_DEFAULT, H5P_DEFAULT);
 
     /* The UD hard link has now incremented the group's reference count
      * like a normal hard link would.  This means that we can unlink the
      * other two links to that group and it won't be deleted until the
      * UD hard link is deleted.
      */
-    H5Ldelete(file_id, TARGET_GROUP, H5P_DEFAULT);
-    H5Ldelete(file_id, HARD_LINK_NAME, H5P_DEFAULT);
+    H5L.h5delete(file_id, TARGET_GROUP, H5P_DEFAULT);
+    H5L.h5delete(file_id, HARD_LINK_NAME, H5P_DEFAULT);
 
     /* The group is still accessible through the UD hard link. If this were
      * a soft link instead, the object would have been deleted when the last
      * hard link to it was unlinked. */
-    group_id = H5Gopen2(file_id, UD_HARD_LINK_NAME, H5P_DEFAULT);
+    group_id = H5G.open2(file_id, UD_HARD_LINK_NAME, H5P_DEFAULT);
 
     /* The group is now open normally.  Don't forget to close it! */
-    H5Gclose(group_id);
+    H5G.close(group_id);
 
     /* Removing the user-defined hard link will delete the group. */
-    H5Ldelete(file_id, UD_HARD_LINK_NAME, H5P_DEFAULT);
+    H5L.h5delete(file_id, UD_HARD_LINK_NAME, H5P_DEFAULT);
 
-    H5Fclose(file_id);
+    H5F.close(file_id);
 }
 
 /* Callbacks for User-defined hard links. */
@@ -417,7 +417,7 @@ extern(C) herr_t UD_hard_create(const char *link_name, hid_t loc_group, const vo
     /* Open the object this link points to so that we can increment
      * its reference count. This also ensures that the address passed
      * in points to a real object (although this check is not perfect!) */
-    target_obj= H5Oopen_by_addr(loc_group, addr);
+    target_obj= H5O.Open_by_addr(loc_group, addr);
     if(target_obj < 0)
     {
       ret_value = -1;
@@ -425,7 +425,7 @@ extern(C) herr_t UD_hard_create(const char *link_name, hid_t loc_group, const vo
     }
 
     /* Increment the reference count of the target object */
-    if(H5Oincr_refcount(target_obj) < 0)
+    if(H5O.incr_refcount(target_obj) < 0)
     {
       ret_value = -1;
       goto done;
@@ -434,7 +434,7 @@ extern(C) herr_t UD_hard_create(const char *link_name, hid_t loc_group, const vo
 done:
     /* Close the target object if we opened it */
     if(target_obj >= 0)
-        H5Oclose(target_obj);
+        H5O.close(target_obj);
     return ret_value;
 }
 
@@ -460,7 +460,7 @@ extern(C) herr_t UD_hard_delete(const char *link_name, hid_t loc_group, const vo
     addr = *(cast(const haddr_t *) udata);
 
     /* Open the object this link points to */
-    target_obj= H5Oopen_by_addr(loc_group, addr);
+    target_obj= H5O.Open_by_addr(loc_group, addr);
     if(target_obj < 0)
     {
       ret_value = -1;
@@ -468,7 +468,7 @@ extern(C) herr_t UD_hard_delete(const char *link_name, hid_t loc_group, const vo
     }
 
     /* Decrement the reference count of the target object */
-    if(H5Odecr_refcount(target_obj) < 0)
+    if(H5O.decr_refcount(target_obj) < 0)
     {
       ret_value = -1;
       goto done;
@@ -477,7 +477,7 @@ extern(C) herr_t UD_hard_delete(const char *link_name, hid_t loc_group, const vo
 done:
     /* Close the target object if we opened it */
     if(target_obj >= 0)
-        H5Oclose(target_obj);
+        H5O.close(target_obj);
     return ret_value;
 }
 
@@ -499,10 +499,10 @@ extern(C) hid_t UD_hard_traverse(const char *link_name, hid_t cur_group,
 
     addr = *(cast(const haddr_t *) udata);
 
-    /* Open the object by address. If H5Oopen_by_addr fails, ret_value will
+    /* Open the object by address. If H5O.Open_by_addr fails, ret_value will
      * be negative to indicate that the traversal function failed.
      */
-    ret_value = H5Oopen_by_addr(cur_group, addr);
+    ret_value = H5O.Open_by_addr(cur_group, addr);
 
     return ret_value;
 }
@@ -630,10 +630,10 @@ extern(C) void plist_link_example()
     if(H5Pget(lapl_id, PLIST_LINK_PROP, &path) < 0)
         goto error;
 
-    /* Open the object by address. If H5Oopen_by_addr fails, ret_value will
+    /* Open the object by address. If H5O.Open_by_addr fails, ret_value will
      * be negative to indicate that the traversal function failed.
      */
-    ret_value = H5Oopen(cur_group, path, lapl_id);
+    ret_value = H5O.Open(cur_group, path, lapl_id);
 
     return ret_value;
 
