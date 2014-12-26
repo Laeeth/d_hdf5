@@ -24,6 +24,7 @@
 
 import hdf5.wrap;
 import hdf5.bindings.enums;
+import hdf5.bindings.api;
 import std.file;
 import std.stdio;
 import std.exception;
@@ -40,19 +41,20 @@ int main(string[] args)
     hid_t    file;
     hid_t    grp;
     hid_t    dataset, dataspace;
-    hid_t    plist;
-
+    
     herr_t   status;
     hsize_t  dims[2];
     hsize_t  cdims[2];
 
     int      idx_f, idx_g;
 
+    writefln("* H5open");
+    H5open();
     writefln("* Create a file");
     file = H5F.create(H5FILE_NAME, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     writefln("* Create a group in the file");
     grp = H5G.create2(file, "/Data", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
+    writefln("* Created group");
     /*
      * Create dataset "Compressed Data" in the group using absolute
      * name. Dataset creation property list is modified to use
@@ -64,9 +66,14 @@ int main(string[] args)
     cdims[0] = 20;
     cdims[1] = 20;
     dataspace = H5S.create_simple(dims);
-    plist     = H5P.create(H5P_DATASET_CREATE);
+    writefln("* Created dataspace");
+    writefln("* Trying to create property list:%s",H5P_DATASET_CREATE);
+    auto plist     = H5Pcreate(H5P_DATASET_CREATE);
+    writefln("* Created property list: %s",plist);
     H5P.set_chunk(plist, cdims);
+    writefln("* Set chunk");
     H5P.set_deflate( plist, 6);
+    writefln("* Set deflate");
     dataset = H5D.create2(file, "/Data/Compressed_Data", H5T_NATIVE_INT, dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
     writefln("* Close the first dataset");
     H5S.close(dataspace);

@@ -77,15 +77,6 @@ version(Posix)
   }
 }
 
-string ZtoString(const char[] c)
-{
-    return to!string(fromStringz(cast(char*)c));
-}
-
-string ZtoString(const char* c)
-{
-    return to!string(fromStringz(c));
-}
     /* Define the operator function pointer for H5Diterate() */
 extern(C)
 {
@@ -269,9 +260,9 @@ extern(C)
     hid_t H5Oopen_by_addr(hid_t loc_id, haddr_t addr);
     hid_t H5Oopen_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, hid_t lapl_id);
     htri_t H5Oexists_by_name(hid_t loc_id, const char *name, hid_t lapl_id);
-    herr_t H5Oget_info(hid_t loc_id, H5O_info_t *oinfo);
-    herr_t H5Oget_info_by_name(hid_t loc_id, const (char *)name, H5O_info_t *oinfo, hid_t lapl_id);
-    herr_t H5Oget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5O_info_t *oinfo, hid_t lapl_id);
+    herr_t H5Oget_info(hid_t loc_id, H5OInfo  *oinfo);
+    herr_t H5Oget_info_by_name(hid_t loc_id, const (char *)name, H5OInfo  *oinfo, hid_t lapl_id);
+    herr_t H5Oget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5OInfo  *oinfo, hid_t lapl_id);
     herr_t H5Olink(hid_t obj_id, hid_t new_loc_id, const char *new_name, hid_t lcpl_id, hid_t lapl_id);
     herr_t H5Oincr_refcount(hid_t object_id);
     herr_t H5Odecr_refcount(hid_t object_id);

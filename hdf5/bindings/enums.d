@@ -154,7 +154,7 @@ enum H5Index {
 }
 
 /*
- * Storage info struct used by H5O_info_t and H5F_info_t
+ * Storage info struct used by H5OInfo  and H5F_info_t
  */
 align(1)
 {
@@ -733,7 +733,7 @@ extern(C)
   }
 
   /* Information struct for object (for H5Oget_info/H5Oget_info_by_name/H5Oget_info_by_idx) */
-    struct H5O_info_t {
+    struct H5OInfo {
       ulong    fileno;     /* File number that object is located in */
       haddr_t         addr;       /* Object address in file   */
       H5OType       type;       /* Basic object type (group, dataset, etc.) */
@@ -758,7 +758,7 @@ extern(C)
     alias H5O_msg_crt_idx_t = uint32_t;
 
     /* Prototype for H5Ovisit/H5Ovisit_by_name() operator */
-    alias H5O_iterate_t = herr_t function(hid_t obj, const char *name, const H5O_info_t *info, void *op_data);
+    alias H5O_iterate_t = herr_t function(hid_t obj, const char *name, const H5OInfo  *info, void *op_data);
   }
     enum H5O_mcdt_search_ret_t {
         H5O_MCDT_SEARCH_ERROR = -1, /* Abort H5Ocopy */

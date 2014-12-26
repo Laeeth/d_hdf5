@@ -1,5 +1,5 @@
-PROGRAMS=h5ex_d_alloc h5ex_d_chunk h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group h5_extlink h5ex_d_unlimadd h5_rdwt h5_select h5ex_g_iterate h5_subset h5_reference h5_ref2reg
 #h5_drivers h5_dtransform h5_ex_g_visit
+PROGRAMS=h5ex_d_alloc h5ex_d_chunk h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group h5_extlink h5ex_d_unlimadd h5_rdwt h5_select h5ex_g_iterate h5_subset h5_reference h5_ref2reg h5ex_g_traverse h5ex_t_bit h5ex_t_stringatt h5ex_t_string myiterator h5ex_d_szip h5ex_t_cpxcmpd.d
 #.PHONY: all clean realclean purge
 
 all: $(PROGRAMS)
@@ -73,7 +73,29 @@ h5_reference: d_examples/h5_reference.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/b
 h5_ref2reg: d_examples/h5_ref2reg.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
 	dmd d_examples/h5_ref2reg.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
 
-clean:		
+h5ex_g_traverse: d_examples/h5ex_g_traverse.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_g_traverse.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+h5ex_t_bit: d_examples/h5ex_t_bit.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_t_bit.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+h5ex_t_stringatt: d_examples/h5ex_t_stringatt.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_t_stringatt.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+h5ex_t_string: d_examples/h5ex_t_string.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_t_string.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+myiterator: d_examples/myiterator.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/myiterator.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+h5ex_d_szip: d_examples/h5ex_d_szip.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_d_szip.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+h5ex_t_cpxcmpd: d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+
+ clean:		
 	rm -f *.o
 
 #realclean purge: clean

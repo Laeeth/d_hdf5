@@ -12,7 +12,7 @@
   http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
   access to either file, you may request a copy from help@hdfgroup.org.     *
 
-  Ported by Laeeth Ishaarc 2014 to the D Programming Language
+  Ported by Laeeth Isharc 2014 to the D Programming Language
   Use at your own risk!
 
   This example shows how to iterate over group members using
@@ -51,7 +51,7 @@ int main(string[] args)
      * Close and release resources.
      */
     status = H5F.close (file);
-    return 0;
+        return 0;
 }
 
 

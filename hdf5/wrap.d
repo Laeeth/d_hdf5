@@ -836,12 +836,12 @@ struct H5O
     return H5Oexists_by_name(loc_id,toStringz(name),lapl_id);
   }
  
-  void get_info(hid_t loc_id, H5O_info_t *oinfo)
+  void get_info(hid_t loc_id, H5OInfo  *oinfo)
   {
     throwOnError(H5Oget_info(loc_id,oinfo));
   }
  
-  void get_info_by_name(hid_t loc_id, string name, H5O_info_t *oinfo, hid_t lapl_id)
+  void get_info_by_name(hid_t loc_id, string name, H5OInfo  *oinfo, hid_t lapl_id)
   {
     //writefln("getinfobyname: %s",name);
     throwOnError(H5Oget_info_by_name(loc_id,toStringz(name),oinfo,lapl_id));
@@ -849,7 +849,7 @@ struct H5O
   }
  
  
-  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5O_info_t *oinfo, hid_t lapl_id)
+  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5OInfo  *oinfo, hid_t lapl_id)
   {
     throwOnError(H5Oget_info_by_idx(loc_id,toStringz(group_name),idx_type,order,n,oinfo,lapl_id));
   }
@@ -2466,3 +2466,96 @@ struct H5Z
       throwOnError(H5Zget_filter_info(filter, filter_config_flags));
     }
 }
+
+
+string[] findAttributes(hid_t obj_id)
+{
+    hsize_t idx=0;
+    string[] ret;
+    H5A.iterate2(obj_id, H5Index.Name, H5IterOrder.Inc,  &idx, &myAttributeIterator, &ret);
+    return ret;
+}
+
+extern(C) herr_t  myAttributeIterator( hid_t location_id/*in*/, const char *attr_name/*in*/, const H5A_info_t *ainfo/*in*/, void *op_data/*in,out*/)
+{
+    auto attrib=cast(string[]*)op_data;
+    (*attrib)~=ZtoString(attr_name);    
+    return 0;
+} 
+
+string[] findLinks(hid_t group_id)
+{
+    hsize_t idx=0;
+    string[] ret;
+    H5L.iterate(group_id, H5Index.Name, H5IterOrder.Inc,  &idx, &myLinkIterator, &ret);
+    return ret;
+}
+
+extern(C) herr_t  myLinkIterator( hid_t g_id/*in*/, const char *name/*in*/, const H5LInfo* info/*in*/, void *op_data/*in,out*/)
+{
+    auto linkstore=cast(string[]*)op_data;
+    (*linkstore)~=ZtoString(name);    
+    return 0;
+} 
+
+
+string[] dataSpaceContents(ubyte[] buf, hid_t type_id,hid_t space_id)
+{
+    hsize_t idx=0;
+    dataSpaceDescriptor[] ret;
+    string[] rets;
+    H5D.iterate(cast(void*)buf,type_id,space_id,&dataSpaceIterator,&ret);
+    foreach(item;ret)
+    {
+        rets~=to!string(item.elemtype) ~ " " ~ to!string(item.ndim) ~ " " ~ to!string(item.point);
+    }
+    return rets;
+}
+
+struct dataSpaceDescriptor
+{
+    hid_t elemtype;
+    uint ndim;
+    hsize_t point;
+}
+
+extern(C) herr_t  dataSpaceIterator(void* elem, hid_t type_id, int ndim, const hsize_t *point, void *op_data) 
+{
+    auto store=cast(dataSpaceDescriptor[]*)op_data;
+    dataSpaceDescriptor ret_elem;
+    ret_elem.elemtype=type_id;
+    ret_elem.ndim=ndim;
+    ret_elem.point=*point;
+    (*store)~=ret_elem;
+    return 0;
+} 
+
+string[] propertyList(hid_t id) 
+{
+    int idx=0;
+    string[] ret;
+    H5P.iterate(id, &idx, &myPropertyIterator, &ret);
+    return ret;
+}
+
+extern(C) herr_t myPropertyIterator( hid_t id, const char *name, void *op_data )
+{
+    auto namestore=cast(string[]*)op_data;
+    (*namestore)~=ZtoString(name);    
+    return 0;
+} 
+
+string[] objectList(hid_t id)
+{
+    hsize_t idx=0;
+    string[] ret;
+    H5O.visit( id, H5Index.Name, H5IterOrder.Inc,&myObjectIterator,&ret );
+    return ret;
+}
+
+extern(C) herr_t  myObjectIterator( hid_t g_id/*in*/, const char *name/*in*/, const H5OInfo* info/*in*/, void *op_data/*in,out*/)
+{
+    auto linkstore=cast(string[]*)op_data;
+    (*linkstore)~=ZtoString(name);    
+    return 0;
+} 
