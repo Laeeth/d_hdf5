@@ -40,14 +40,14 @@ enum CHUNK1          =4;
 
 int main (string[] args)
 {
-    hid_t file, space, dset, dcpl;    /* Handles */
-    herr_t status;
+    hid_t           file, space, dset;    /* Handles */
+    herr_t          status;
     hsize_t[2] dims = [DIM0, DIM1];
     hsize_t[2] extdims = [EDIM0, EDIM1];
     hsize_t[2] maxdims;
     hsize_t[2] chunk = [CHUNK0, CHUNK1];
     hsize_t[2] start,count;
-    int[DIM1][DIM0]wdata[DIM0][DIM1];          /* Write buffer */
+    int[DIM1][DIM0]wdata;          /* Write buffer */
     int [EDIM1][EDIM0] wdata2;       /* Write buffer for
                                                    extension */
     int[][] rdata;                    /* Read buffer */
@@ -71,23 +71,23 @@ int main (string[] args)
     maxdims[0] = H5S_UNLIMITED;
     maxdims[1] = H5S_UNLIMITED;
     space = H5S.create_simple(dims, maxdims);
-
+    return(0);
     /*
      * Create the dataset creation property list, and set the chunk
      * size.
      */
-    dcpl = H5P.create (H5P_DATASET_CREATE);
-    H5P.set_chunk(dcpl, 2, chunk);
+    auto dcpl = H5P.create (H5P_DATASET_CREATE);
+    H5P.set_chunk(dcpl, chunk);
 
     /*
      * Create the unlimited dataset.
      */
-    dset = H5D.create (file, DATASET, H5T_STD_I32LE, space, dcpl);
+    dset = H5D.create2(file, DATASET, H5T_STD_I32LE, space, 0,dcpl,0);
 
     /*
      * Write the data to the dataset.
      */
-    H5D.write (dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, wdata[0]);
+    H5D.write (dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)wdata);
 
     /*
      * Close and release resources.
@@ -106,8 +106,8 @@ int main (string[] args)
     /*
      * Open file and dataset using the default properties.
      */
-    file = H5F.open (FILE, H5F_ACC_RDWR, H5P_DEFAULT);
-    dset = H5D.open (file, DATASET);
+    file = H5F.open(FILE, H5F_ACC_RDWR, H5P_DEFAULT);
+    dset = H5D.open2(file, DATASET,H5P_DEFAULT);
 
     /*
      * Get dataspace and allocate memory for read buffer.  This is a
@@ -115,7 +115,7 @@ int main (string[] args)
      * in steps.
      */
     space = H5D.get_space (dset);
-    ndims = H5S.get_simple_extent_dims (space, dims, NULL);
+    ndims = H5S.get_simple_extent_dims (space,dims);    
 
     /*
      * Allocate array of pointers to rows.
@@ -146,7 +146,7 @@ int main (string[] args)
     foreach(i;0..dims[0])
     {
         writef (" [");
-        for (j=0; j<dims[1]; j++)
+        foreach(j;0..dims[1])
             writef (" %3d", rdata[i][j]);
         writefln("]");
     }
@@ -156,7 +156,7 @@ int main (string[] args)
     /*
      * Extend the dataset.
      */
-    status = H5Dextend (dset, extdims);
+    H5D.set_extent(dset, extdims);
 
     /*
      * Retrieve the dataspace for the newly extended dataset.
@@ -166,8 +166,8 @@ int main (string[] args)
     /*
      * Initialize data for writing to the extended dataset.
      */
-    for (i=0; i<EDIM0; i++)
-        for (j=0; j<EDIM1; j++)
+    foreach(i;0..EDIM0)
+        foreach(j;0..EDIM1)
             wdata2[i][j] = j;
 
     /*
@@ -184,24 +184,25 @@ int main (string[] args)
     start[1] = 0;
     count[0] = dims[0];
     count[1] = dims[1];
-    status = H5Sselect_hyperslab (space, H5S_SELECT_NOTB, start, NULL, count,
-                NULL);
+    H5S.select_hyperslab (space, H5SSeloper.NotB, start[],  count[]);
 
     /*
      * Write the data to the selected portion of the dataset.
      */
-    status = H5Dwrite (dset, H5T_NATIVE_INT, H5S_ALL, space, H5P_DEFAULT,
-                wdata2[0]);
+    status = H5Dwrite (dset, H5T_NATIVE_INT, H5S_ALL, space, H5P_DEFAULT, wdata2.ptr);
 
     /*
      * Close and release resources.
      */
     //free (rdata[0]);
     //free(rdata);
-    status = H5Dclose (dset);
-    status = H5Sclose (space);
-    status = H5Fclose (file);
-
+    H5D.close (dset);
+    H5S.close (space);
+    H5F.close (file);
+    foreach(i;0..rdata.length)
+        foreach(j;0..rdata[i].length)
+            rdata[i][j]=0;
+    // should zero out rdata;
 
     /*
      * Now we simply read back the data and output it to the screen.
@@ -210,41 +211,41 @@ int main (string[] args)
     /*
      * Open file and dataset using the default properties.
      */
-    file = H5Fopen (FILE, H5F_ACC_RDONLY, H5P_DEFAULT);
-    dset = H5Dopen (file, DATASET);
+    file = H5F.open (FILE, H5F_ACC_RDONLY, H5P_DEFAULT);
+    dset = H5D.open2(file, DATASET,H5P_DEFAULT);
 
     /*
      * Get dataspace and allocate memory for the read buffer as before.
      */
-    space = H5Dget_space (dset);
-    ndims = H5Sget_simple_extent_dims (space, dims, NULL);
-    rdata = (int **) malloc (dims[0] * sizeof (int *));
-    rdata[0] = (int *) malloc (dims[0] * dims[1] * sizeof (int));
-    for (i=1; i<dims[0]; i++)
-        rdata[i] = rdata[0] + i * dims[1];
+    space = H5D.get_space (dset);
+    ndims = H5S.get_simple_extent_dims(dset,dims);
+    //rdata = (int **) malloc (dims[0] * sizeof (int *));
+    //rdata[0] = (int *) malloc (dims[0] * dims[1] * sizeof (int));
+    //for (i=1; i<dims[0]; i++)
+     //   rdata[i] = rdata[0] + i * dims[1];
 
     /*
      * Read the data using the default properties.
      */
-    status = H5Dread (dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                rdata[0]);
+    H5D.read(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)&rdata);
 
     /*
      * Output the data to the screen.
      */
-    writef ("\nDataset after extension:\n");
-    for (i=0; i<dims[0]; i++) {
+    writefln("\nDataset after extension:");
+    foreach(i;0..dims[0])
+    {
         writef (" [");
-        for (j=0; j<dims[1]; j++)
+        foreach(j;0..dims[1])
             writef (" %3d", rdata[i][j]);
-        writef ("]\n");
+        writefln ("]");
     }
 
     /*
      * Close and release resources.
      */
-    free (rdata[0]);
-    free(rdata);
+    //free (rdata[0]);
+    //free(rdata);
     H5D.close(dset);
     H5S.close(space);
     H5F.close(file);
