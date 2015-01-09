@@ -1,4 +1,4 @@
-PROGRAMS=h5ex_d_alloc h5ex_d_chunk h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_drivers h5_dtransform h5_group
+PROGRAMS=h5ex_d_alloc h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group
 
 #.PHONY: all clean realclean purge
 
