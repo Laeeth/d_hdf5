@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-PROGRAMS=h5ex_d_alloc h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group
-
-=======
-#h5_drivers h5_dtransform h5_ex_g_visit
-PROGRAMS=h5ex_d_alloc h5ex_d_chunk h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group h5_extlink h5ex_d_unlimadd h5_rdwt h5_select h5ex_g_iterate h5_subset h5_reference h5_ref2reg h5ex_g_traverse h5ex_t_bit h5ex_t_stringatt h5ex_t_string myiterator h5ex_d_szip h5ex_t_cpxcmpd.d
->>>>>>> b0572e34f2a54893d8439fe1093235ed96c10d13
+# not currently compiling: h5_extlink h5ex_d_unlimadd h5_rdwt h5_select h5ex_g_iterate h5_subset h5_reference h5_ref2reg  h5ex_g_traverse h5ex_t_cpxcmpd.d
+PROGRAMS=h5ex_d_alloc traits h5ex_d_chunk h5_write h5_read h5_attribute h5_extend_write h5_chunk_read h5_compound h5_group        h5ex_t_bit h5ex_t_stringatt h5ex_t_string myiterator h5ex_d_szip 
 #.PHONY: all clean realclean purge
 
 all: $(PROGRAMS)
@@ -98,6 +93,9 @@ h5ex_d_szip: d_examples/h5ex_d_szip.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bin
 
 h5ex_t_cpxcmpd: d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
 	dmd d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
+
+traits.d: hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+	dmd d_examples/traits.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
 
 
  clean:		
