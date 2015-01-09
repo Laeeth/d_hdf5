@@ -94,7 +94,7 @@ h5ex_d_szip: d_examples/h5ex_d_szip.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bin
 h5ex_t_cpxcmpd: d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
 	dmd d_examples/h5ex_t_cpxcmpd.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
 
-traits.d: hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
+traits: hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d
 	dmd d_examples/traits.d hdf5/wrap.d hdf5/bindings/enums.d hdf5/bindings/api.d -L-lhdf5 -L-lhdf5_hl
 
 

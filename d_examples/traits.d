@@ -12,6 +12,7 @@ import std.array;
 alias hid_t = int;
 enum LENGTH =10LU;
 enum RANK          =1;
+enum CHUNKSIZE=260;
 debug=0;
 align(1):
 struct PriceBar
@@ -46,11 +47,11 @@ int main(string[] args)
 	PriceBar temp;
 	foreach(i;0..30)
 	{
-	temp.year=to!short(2000+i);
-	temp.month=cast(ubyte)((i%12)+1);
-	app.put(temp);
+		temp.year=to!short(2000+i);
+		temp.month=cast(ubyte)((i%12)+1);
+		app.put(temp);
 	}
-	dumpDataSpaceVector("test.hdf5","AUD",app.data,true);
+	dumpDataSpaceVector("test.hdf5","AUD2",app.data,true);
 	return 1;
 }
 
@@ -94,19 +95,21 @@ hid_t mapDtoHDF5Type(string dType)
 
 void dumpDataSpaceVector(T)(string filename,string datasetName, T[] data,bool append)
 {
+	bool fileExists=false;
 	hid_t file;
 	T junk;
 
-	hsize_t[1] chunk_dims =[260];
+	hsize_t[1] chunk_dims =[CHUNKSIZE];
 	hsize_t[]  dim = [data.length];
 	auto space = H5S.create_simple(dim);
     	auto dataType = createDataType(data[0]);
-	if ((exists(filename)) && (H5L.exists((file=H5F.open(filename,H5F_ACC_RDWR, H5P_DEFAULT)),datasetName,H5P_DEFAULT)))
+    	fileExists=exists(filename);
+	if ((fileExists) && (H5L.exists((file=H5F.open(filename,H5F_ACC_RDWR, H5P_DEFAULT)),datasetName,H5P_DEFAULT)))
 	{
 		auto dataset = H5D.open2(file, datasetName, H5P_DEFAULT);
 		if(append)
 		{
-			writefln("***APPEND");
+			debug writefln("***APPEND");
 			file=H5F.open(filename,H5F_ACC_RDWR, H5P_DEFAULT);
 			auto dataTypeData  = H5D.get_type(dataset);     /* datatype handle */
 			auto t_class     = H5T.get_class(dataTypeData);
@@ -116,14 +119,19 @@ void dumpDataSpaceVector(T)(string filename,string datasetName, T[] data,bool ap
 			auto rank      = H5S.get_simple_extent_ndims(dataspace);
 			hsize_t[1]     dims_out,   offset;
 			auto status_n  = H5S.get_simple_extent_dims(dataspace, dims_out);
+			debug writefln("dims_out[0]=%s; data.length=%s",dims_out[0],data.length);
 			dim=[dims_out[0]+data.length];
 			H5D.set_extent(dataset, dim);
+			debug writefln("*set extent succeeded");
 			auto filespace = H5D.get_space(dataset); 
+			debug writefln("*set filespace");
 	    		offset[0] = dims_out[0];
 	    		auto dim2=[data.length];
 			H5S.select_hyperslab(filespace, H5SSeloper.Set, offset, dim2);
+			debug writefln("*selected hyperslab");
 			auto dataspace2 = H5S.create_simple(dim2);
-			H5D.write(dataset, dataType, dataspace, filespace, H5P_DEFAULT, cast(ubyte*)data.ptr);
+			debug writefln("*create simple dim2");
+			H5D.write(dataset, dataType, dataspace2, filespace, H5P_DEFAULT, cast(ubyte*)data.ptr);
 			H5T.close(dataType);
 		    	H5S.close(space);
 			H5D.close(dataset);
@@ -131,23 +139,38 @@ void dumpDataSpaceVector(T)(string filename,string datasetName, T[] data,bool ap
 			return;
 
 		}
-		else // file exists and not append -> need to destroy dataset but keep others in this file
+		else // file exists, contains our dataset but not append -> need to destroy dataset but keep others in this file
 		{
+			debug writefln("* file exists and not append mode -> destroy dataset and keep other sets in file");
 			file=H5F.open(filename,H5F_ACC_RDWR, H5P_DEFAULT);
+			debug writefln("* file opened - now destroying dataset; keeping others");
 			H5L.h5delete(file,datasetName,H5P_DEFAULT);
+			debug writefln("* destroyed");
 		}  
 			
 	}
-	else {
-		file = H5F.create(filename, H5F_ACC_TRUNC , H5P_DEFAULT, H5P_DEFAULT);
+	else { // either file exists but doesnt contain our dataset, or it doesnt exist
+		if (!fileExists)
+		{
+			debug writefln("* file does not exist, so creating it");
+			file = H5F.create(filename, H5F_ACC_TRUNC , H5P_DEFAULT, H5P_DEFAULT);
+		}
+		else {
+			debug writefln("* file exists but does not contain our dataset");
+			file=H5F.open(filename,H5F_ACC_RDWR, H5P_DEFAULT);
+		}
+
 	}
+			
 	hsize_t[1] maxdims = [H5S_UNLIMITED];
 	auto dataspace = H5S.create_simple(dim, maxdims);
 	auto cparms = H5P.create(H5P_DATASET_CREATE); // Modify dataset creation properties, i.e. enable chunking.
     	H5P.set_chunk( cparms, chunk_dims);
     	H5P.set_fill_value (cparms, dataType, cast(void*)&junk);
-    	auto dataset = H5D.create2(file, datasetName, dataType, space, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    	debug writefln("* creating dataset");
+    	auto dataset = H5D.create2(file, datasetName, dataType, dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
 	auto filespace = H5D.get_space(dataset); 
+	debug writefln("* writing data");
     	H5D.write(dataset, dataType, dataspace,filespace, H5P_DEFAULT, cast(ubyte*)data.ptr);
 	H5T.close(dataType);
     	H5S.close(space);
