@@ -34,7 +34,8 @@
    Get the transform from the property using H5Pget_data_transform.
 */ 
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.file;
 import std.stdio;
 import std.exception;

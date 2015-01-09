@@ -26,7 +26,8 @@
    of the array attribute.
 */
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 import std.string;
@@ -132,8 +133,8 @@ int main(string[] args)
            writefln("Found string attribute; its index is %d , value =   %s \n", i, ZtoString(string_out));
            H5T.close(atype_mem);
       }
-       ret   = H5Aclose(attr);
-       ret   = H5Tclose(atype);
+       H5A.close(attr);
+       H5T.close(atype);
     }
 
     // Get attribute info using iteration function.
@@ -185,7 +186,7 @@ extern(C) static herr_t attr_info(hid_t loc_id, const char *name, const H5A_info
 
     // Read array attribute and display its type and values.
 
-    if (H5TClass.Float== H5Tget_class(atype))
+    if (H5TClass.Float== H5T.get_class(atype))
     {
         writefln("Type : FLOAT");
         npoints = H5S.get_simple_extent_npoints(aspace);

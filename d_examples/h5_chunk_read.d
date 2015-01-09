@@ -19,7 +19,8 @@
   We will read from the file created by h5_extend_write.d
 */ 
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 import std.string;

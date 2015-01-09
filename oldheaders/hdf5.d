@@ -55,10 +55,10 @@ void throwOnError(int status)
 
 enum H5_VERS_MAJOR   = 1;  /* For major interface/format changes */
 enum H5_VERS_MINOR   = 8;  /* For minor interface/format changes */
-enum H5_VERS_RELEASE = 13; /* For tweaks, bug-fixes, or development */
+enum H5_VERS_RELEASE = 14; /* For tweaks, bug-fixes, or development */
 enum H5_VERS_SUBRELEASE  = ""; /* For pre-releases like snap0 */
                 /* Empty string for real releases.           */
-enum H5_VERS_INFO = "HDF5 library version: 1.8.13"; /* Full version string */
+enum H5_VERS_INFO = "HDF5 library version: 1.8.14"; /* Full version string */
 
 auto H5check() {
   return H5check_version(H5_VERS_MAJOR,H5_VERS_MINOR, H5_VERS_RELEASE);
@@ -150,7 +150,7 @@ enum H5IterOrder
     Unknown = -1,       /* Unknown order */
     Inc,                /* Increasing order */
     Dec,                /* Decreasing order */
-    Natve,             /* No particular order, whatever is fastest */
+    Native,             /* No particular order, whatever is fastest */
     N               /* Number of iteration orders */
 }
 
@@ -177,11 +177,13 @@ enum H5Index {
 /*
  * Storage info struct used by H5O_info_t and H5F_info_t
  */
-struct H5_ih_info_t {
-    hsize_t     index_size;     /* btree and/or list */
-    hsize_t     heap_size;
+align(1)
+{
+  struct H5_ih_info_t {
+      hsize_t     index_size;     /* btree and/or list */
+      hsize_t     heap_size;
+  }
 }
-
 /* Functions in H5.c */
 version(Posix)
 {
@@ -208,6 +210,79 @@ string ZtoString(const char* c)
 {
     return to!string(fromStringz(c));
 }
+
+enum H5AC__CURR_CACHE_CONFIG_VERSION   =1;
+enum H5AC__MAX_TRACE_FILE_NAME_LEN   =1024;
+
+enum H5AC_METADATA
+{
+  WRITE_STRATEGY__PROCESS_0_ONLY    =0,
+  WRITE_STRATEGY__DISTRIBUTED       =1,
+}
+struct H5ACCacheConfig
+{
+    align(1)
+    {
+      /* general configuration fields: */
+      int                     ver;
+
+      hbool_t        rpt_fcn_enabled;
+
+      hbool_t        open_trace_file;
+      hbool_t                  close_trace_file;
+      char[H5AC__MAX_TRACE_FILE_NAME_LEN + 1] trace_file_name;
+
+      hbool_t                  evictions_enabled;
+
+      hbool_t                  set_initial_size;
+      size_t                   initial_size;
+
+      double                   min_clean_fraction;
+
+      size_t                   max_size;
+      size_t                   min_size;
+
+      long                 epoch_length;
+
+
+      /* size increase control fields: */
+      //enum H5C_cache_incr_mode=incr_mode;
+
+      double                   lower_hr_threshold;
+
+      double                   increment;
+
+      hbool_t                  apply_max_increment;
+      size_t                   max_increment;
+
+      //enum H5C_cache_flash_incr_mode      =flash_incr_mode;
+      double                              flash_multiple;
+      double                              flash_threshold;
+
+
+      /* size decrease control fields: */
+      //enum H5C_cache_decr_mode decr_mode;
+
+      double                   upper_hr_threshold;
+
+      double                   decrement;
+
+      hbool_t                  apply_max_decrement;
+      size_t                   max_decrement;
+
+      int                      epochs_before_eviction;
+
+      hbool_t                  apply_empty_reserve;
+      double                   empty_reserve;
+
+
+      /* parallel configuration fields: */
+      int                      dirty_bytes_threshold;
+      int                      metadata_write_strategy;
+    }
+}
+
+
 
 
 /*****************/
@@ -319,13 +394,15 @@ extern(C)
 
 
 /* Information struct for attribute (for H5Aget_info/H5Aget_info_by_idx) */
-struct H5A_info_t {
-    hbool_t             corder_valid;   /* Indicate if creation order is valid */
-    H5O_msg_crt_idx_t   corder;         /* Creation order                 */
-    H5TCset          cset;           /* Character set of attribute name */
-    hsize_t             data_size;      /* Size of raw data		  */
+align(1)
+{
+  struct H5A_info_t {
+      hbool_t             corder_valid;   /* Indicate if creation order is valid */
+      H5O_msg_crt_idx_t   corder;         /* Creation order                 */
+      H5TCset             cset;           /* Character set of attribute name */
+      hsize_t             data_size;      /* Size of raw data		  */
+  }
 }
-
 // Typedef for H5Aiterate2() callbacks
 extern(C)
 {
@@ -335,7 +412,8 @@ version(Posix)
 {
   extern(C)
   {
-    // Public function prototypes */
+    // Public function prototypes
+
     hid_t   H5Acreate2(hid_t loc_id, const char *attr_name, hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id);
     hid_t   H5Acreate_by_name(hid_t loc_id, const char *obj_name, const char *attr_name,
         hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id, hid_t lapl_id);
@@ -371,71 +449,31 @@ version(Posix)
 }
 
 
-/***** Macros for One linked collective IO case. *****/
-/* The default value to do one linked collective IO for all chunks.
-   If the average number of chunks per process is greater than this value,
-      the library will create an MPI derived datatype to link all chunks to do collective IO.
-      The user can set this value through an API. */
-
 enum H5D_ONE_LINK_CHUNK_IO_THRESHOLD = 0;
-/***** Macros for multi-chunk collective IO case. *****/
-/* The default value of the threshold to do collective IO for this chunk.
-   If the average percentage of processes per chunk is greater than the default value,
-   collective IO is done for this chunk.
-*/
-
 enum H5D_MULTI_CHUNK_IO_COL_THRESHOLD = 60;
-/* Type of I/O for data transfer properties */
-enum H5FD_mpio_xfer_t {
-    H5FD_MPIO_INDEPENDENT = 0,      /*zero is the default*/
-    H5FD_MPIO_COLLECTIVE
-}
-
-enum {
-    H5FD_MPIO_INDEPENDENT = 0,      /*zero is the default*/
-    H5FD_MPIO_COLLECTIVE
+enum H5FDMPIO {
+    Independent = 0,      /*zero is the default*/
+    Collective
 }
 
 /* Type of chunked dataset I/O */
-enum H5FD_mpio_chunk_opt_t {
-    H5FD_MPIO_CHUNK_DEFAULT = 0,
-    H5FD_MPIO_CHUNK_ONE_IO,         /*zero is the default*/
-    H5FD_MPIO_CHUNK_MULTI_IO
-}
-
-enum {
-    H5FD_MPIO_CHUNK_DEFAULT = 0,
-    H5FD_MPIO_CHUNK_ONE_IO,         /*zero is the default*/
-    H5FD_MPIO_CHUNK_MULTI_IO
+enum H5FDMPIOChunkOptions
+{
+    Default = 0,
+    OneIO,         /*zero is the default*/
+    MultiIO
 }
 
 /* Type of collective I/O */
-enum H5FD_mpio_collective_opt_t {
-    H5FD_MPIO_COLLECTIVE_IO = 0,
-    H5FD_MPIO_INDIVIDUAL_IO         /*zero is the default*/
-}
 
-enum {
-    H5FD_MPIO_COLLECTIVE_IO = 0,
-    H5FD_MPIO_INDIVIDUAL_IO         /*zero is the default*/
-}
+alias H5FD_MPIO=H5FD_mpio_init;
 
-/*
-mixin template H5FD_MPIO()
+
+
+static if (H5_HAVE_PARALLEL)
 {
-  H5FD_mpio_init();
+  enum H5F_DEBUG = true;
 }
-*/
-
-  /++
-  #ifdef H5_HAVE_PARALLEL
-  /*Turn on H5FDmpio_debug if H5F_DEBUG is on */
-  #ifdef H5F_DEBUG
-  #ifndef H5FDmpio_DEBUG
-  #define H5FDmpio_DEBUG
-  #endif
-  #endif
-  +/
 
   /* Global var whose value comes from environment variable */
   /* (Defined in H5FDmpio.c) */
@@ -447,12 +485,11 @@ mixin template H5FD_MPIO()
     hid_t H5FD_mpio_init();
     void H5FD_mpio_term();
     herr_t H5Pset_fapl_mpio(hid_t fapl_id, MPI_Comm comm, MPI_Info info);
-    herr_t H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm/*out*/,
-                            MPI_Info *info/*out*/);
-    herr_t H5Pset_dxpl_mpio(hid_t dxpl_id, H5FD_mpio_xfer_t xfer_mode);
-    herr_t H5Pget_dxpl_mpio(hid_t dxpl_id, H5FD_mpio_xfer_t *xfer_mode/*out*/);
-    herr_t H5Pset_dxpl_mpio_collective_opt(hid_t dxpl_id, H5FD_mpio_collective_opt_t opt_mode);
-    herr_t H5Pset_dxpl_mpio_chunk_opt(hid_t dxpl_id, H5FD_mpio_chunk_opt_t opt_mode);
+    herr_t H5Pget_fapl_mpio(hid_t fapl_id, MPI_Comm *comm/*out*/, MPI_Info *info/*out*/);
+    herr_t H5Pset_dxpl_mpio(hid_t dxpl_id, H5FDMPIO xfer_mode);
+    herr_t H5Pget_dxpl_mpio(hid_t dxpl_id, H5FDMPIO *xfer_mode/*out*/);
+    herr_t H5Pset_dxpl_mpio_collective_opt(hid_t dxpl_id, H5FDMPIO opt_mode);
+    herr_t H5Pset_dxpl_mpio_chunk_opt(hid_t dxpl_id, H5FDMPIOChunkOptions opt_mode);
     herr_t H5Pset_dxpl_mpio_chunk_opt_num(hid_t dxpl_id, uint num_chunk_per_proc);
     herr_t H5Pset_dxpl_mpio_chunk_opt_ratio(hid_t dxpl_id, uint percent_num_proc_per_chunk);
   }
@@ -528,12 +565,15 @@ enum H5F_close_degree_t {
 
 /* Current "global" information about file */
 /* (just size info currently) */
-struct H5F_info_t {
-    hsize_t     super_ext_size; /* Superblock extension size */
-    struct {
-    hsize_t     hdr_size;       /* Shared object header message header size */
-    H5_ih_info_t    msgs_info;      /* Shared object header message index & heap size */
-    };
+align(1)
+{
+  struct H5F_info_t {
+      hsize_t     super_ext_size; /* Superblock extension size */
+      struct {
+      hsize_t     hdr_size;       /* Shared object header message header size */
+      H5_ih_info_t    msgs_info;      /* Shared object header message index & heap size */
+      };
+    }
 }
 
 /*
@@ -605,50 +645,35 @@ version(Posix) {
   }
 }
 
-
-/*******************/
-/* Public Typedefs */
-/*******************/
-
-/* Types of link storage for groups */
-enum H5G_storage_type_t {
-    H5G_STORAGE_TYPE_UNKNOWN = -1,  /* Unknown link storage type    */
-    H5G_STORAGE_TYPE_SYMBOL_TABLE,      /* Links in group are stored with a "symbol table" */
+enum H5GStorageType {
+    Unknown = -1,  /* Unknown link storage type  */
+    SymbolTable,      /* Links in group are stored with a "symbol table" */
                                         /* (this is sometimes called "old-style" groups) */
-    H5G_STORAGE_TYPE_COMPACT,       /* Links are stored in object header */
-    H5G_STORAGE_TYPE_DENSE      /* Links are stored in fractal heap & indexed with v2 B-tree */
+    Compact,   /* Links are stored in object header */
+    Dense    /* Links are stored in fractal heap & indexed with v2 B-tree */
 }
 
 /* Information struct for group (for H5Gget_info/H5Gget_info_by_name/H5Gget_info_by_idx) */
-struct H5G_info_t {
-    H5G_storage_type_t  storage_type;   /* Type of storage for links in group */
-    hsize_t     nlinks;             /* Number of links in group */
-    int64_t     max_corder;             /* Current max. creation order value for group */
-    hbool_t     mounted;                /* Whether group has a file mounted on it */
+struct H5GInfo {
+    align(1)
+    {
+      H5GStorageType  storage_type;    /* Type of storage for links in group */
+      hsize_t   nlinks;               /* Number of links in group */
+      long     max_corder;             /* Current max. creation order value for group */
+      hbool_t     mounted;             /* Whether group has a file mounted on it */
+  }
 }
 
-  /********************/
-  /* Public Variables */
-  /********************/
-
-
-  /*********************/
-  /* Public Prototypes */
-  /*********************/
-
-version(Posix)
+extern(C)
 {
-  extern(C)
-  {
-    hid_t H5Gcreate2(hid_t loc_id, const char *name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id);
-    hid_t H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id);
-    hid_t H5Gopen2(hid_t loc_id, const char *name, hid_t gapl_id);
-    hid_t H5Gget_create_plist(hid_t group_id);
-    herr_t H5Gget_info(hid_t loc_id, H5G_info_t *ginfo);
-    herr_t H5Gget_info_by_name(hid_t loc_id, const char *name, H5G_info_t *ginfo, hid_t lapl_id);
-    herr_t H5Gget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5G_info_t *ginfo, hid_t lapl_id);
-    herr_t H5Gclose(hid_t group_id);
-  }
+  hid_t H5Gcreate2(hid_t loc_id, const char *name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id);
+  hid_t H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id);
+  hid_t H5Gopen2(hid_t loc_id, const char *name, hid_t gapl_id);
+  hid_t H5Gget_create_plist(hid_t group_id);
+  herr_t H5Gget_info(hid_t loc_id, H5GInfo *ginfo);
+  herr_t H5Gget_info_by_name(hid_t loc_id, const(char *)name, H5GInfo *ginfo, hid_t lapl_id);
+  herr_t H5Gget_info_by_idx(hid_t loc_id, const(char *)group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5GInfo *ginfo, hid_t lapl_id);
+  herr_t H5Gclose(hid_t group_id);
 }
 
 /*
@@ -662,23 +687,24 @@ version(Posix)
  *
  */
 
-enum H5I_type_t {
-    H5I_UNINIT      = (-2), /*uninitialized type                */
-    H5I_BADID       = (-1), /*invalid Type                  */
-    H5I_FILE        = 1,    /*type ID for File objects          */
-    H5I_GROUP,              /*type ID for Group objects         */
-    H5I_DATATYPE,           /*type ID for Datatype objects          */
-    H5I_DATASPACE,          /*type ID for Dataspace objects         */
-    H5I_DATASET,            /*type ID for Dataset objects           */
-    H5I_ATTR,               /*type ID for Attribute objects         */
-    H5I_REFERENCE,          /*type ID for Reference objects         */
-    H5I_VFL,            /*type ID for virtual file layer        */
-    H5I_GENPROP_CLS,            /*type ID for generic property list classes */
-    H5I_GENPROP_LST,            /*type ID for generic property lists        */
-    H5I_ERROR_CLASS,            /*type ID for error classes         */
-    H5I_ERROR_MSG,              /*type ID for error messages            */
-    H5I_ERROR_STACK,            /*type ID for error stacks          */
-    H5I_NTYPES              /*number of library types, MUST BE LAST!    */
+enum H5IType
+{
+    Uninitialized    = (-2), /*uninitialized type                */
+    BadID       = (-1), /*invalid Type                  */
+    FileObject        = 1,    /*type ID for File objects          */
+    Group,              /*type ID for Group objects         */
+    DataType,           /*type ID for Datatype objects          */
+    DataSpace,          /*type ID for Dataspace objects         */
+    DataSet,            /*type ID for Dataset objects           */
+    Attr,               /*type ID for Attribute objects         */
+    Reference,          /*type ID for Reference objects         */
+    VirtualFileLayer,            /*type ID for virtual file layer        */
+    GenericPropClass,            /*type ID for generic property list classes */
+    GenericPropList,            /*type ID for generic property lists        */
+    ErrorClass,            /*type ID for error classes         */
+    ErrorMsg,              /*type ID for error messages            */
+    ErrorStack,            /*type ID for error stacks          */
+    Numtypes              /*number of library types, MUST BE LAST!    */
 }
 
 /* Type of atoms to return to users */
@@ -695,85 +721,70 @@ enum H5I_INVALID_HID = (-1);
  * can be removed from the ID type. If the function returns negative
  * (failure) then the object will remain in the ID type.
  */
-alias H5I_free_t = herr_t function(void*);
+extern(C)
+{
+  alias H5I_free_t = herr_t function(void*);
 
-/* Type of the function to compare objects & keys */
-alias H5I_search_func_t = int function(void *obj, hid_t id, void *key);
-
+  /* Type of the function to compare objects & keys */
+  alias H5I_search_func_t = int function(void *obj, hid_t id, void *key);
+}
 //Public API functions
 
 version(Posix)
 {
   extern(C)
   {
-    hid_t H5Iregister(H5I_type_t type, const void *object);
-    void *H5Iobject_verify(hid_t id, H5I_type_t id_type);
-    void *H5Iremove_verify(hid_t id, H5I_type_t id_type);
-    H5I_type_t H5Iget_type(hid_t id);
+    hid_t H5Iregister(H5IType type, const void *object);
+    void *H5Iobject_verify(hid_t id, H5IType id_type);
+    void *H5Iremove_verify(hid_t id, H5IType id_type);
+    H5IType H5Iget_type(hid_t id);
     hid_t H5Iget_file_id(hid_t id);
     ssize_t H5Iget_name(hid_t id, char *name/*out*/, size_t size);
     int H5Iinc_ref(hid_t id);
     int H5Idec_ref(hid_t id);
     int H5Iget_ref(hid_t id);
-    H5I_type_t H5Iregister_type(size_t hash_size, uint reserved, H5I_free_t free_func);
-    herr_t H5Iclear_type(H5I_type_t type, hbool_t force);
-    herr_t H5Idestroy_type(H5I_type_t type);
-    int H5Iinc_type_ref(H5I_type_t type);
-    int H5Idec_type_ref(H5I_type_t type);
-    int H5Iget_type_ref(H5I_type_t type);
-    void *H5Isearch(H5I_type_t type, H5I_search_func_t func, void *key);
-    herr_t H5Inmembers(H5I_type_t type, hsize_t *num_members);
-    htri_t H5Itype_exists(H5I_type_t type);
+    H5IType H5Iregister_type(size_t hash_size, uint reserved, H5I_free_t free_func);
+    herr_t H5Iclear_type(H5IType type, hbool_t force);
+    herr_t H5Idestroy_type(H5IType type);
+    int H5Iinc_type_ref(H5IType type);
+    int H5Idec_type_ref(H5IType type);
+    int H5Iget_type_ref(H5IType type);
+    void *H5Isearch(H5IType type, H5I_search_func_t func, void *key);
+    herr_t H5Inmembers(H5IType type, hsize_t *num_members);
+    htri_t H5Itype_exists(H5IType type);
     htri_t H5Iis_valid(hid_t id);
   }
 }
-/*****************/
-/* Public Macros */
-/*****************/
-
-/* Maximum length of a link's name */
-/* (encoded in a 32-bit unsigned integer) */
 enum H5L_MAX_LINK_NAME_LEN  = (cast(uint32_t)(-1));  /* (4GB - 1) */
-
-/* Macro to indicate operation occurs on same location */
 enum H5L_SAME_LOC = 0;
-
-/* Current version of the H5L_class_t struct */
 enum H5L_LINK_CLASS_T_VERS = 0;
-
-/*******************/
-/* Public Typedefs */
-/*******************/
 
 /* Link class types.
  * Values less than 64 are reserved for the HDF5 library's internal use.
  * Values 64 to 255 are for "user-defined" link class types; these types are
  * defined by HDF5 but their behavior can be overridden by users.
- * Users who want to create new classes of links should contact the HDF5
- * development team at hdfhelp@ncsa.uiuc.edu .
- * These values can never change because they appear in HDF5 files.
  */
-enum H5L_type_t {
-    H5L_TYPE_ERROR = (-1),      /* Invalid link type id         */
-    H5L_TYPE_HARD = 0,          /* Hard link id                 */
-    H5L_TYPE_SOFT = 1,          /* Soft link id                 */
-    H5L_TYPE_EXTERNAL = 64,     /* External link id             */
-    H5L_TYPE_MAX = 255          /* Maximum link type id         */
+enum H5LType {
+    Error = (-1),      /* Invalid link type id         */
+    Hard  = 0,          /* Hard link id                 */
+    Soft  = 1,          /* Soft link id                 */
+    External  = 64,     /* External link id             */
+    Max = 255          /* Maximum link type id         */
 };
-enum H5L_TYPE_BUILTIN_MAX = H5L_type_t.H5L_TYPE_SOFT;      /* Maximum value link value for "built-in" link types */
-enum H5L_TYPE_UD_MIN = H5L_type_t.H5L_TYPE_EXTERNAL;  /* Link ids at or above this value are "user-defined" link types. */
+enum H5L_TYPE_BUILTIN_MAX = H5LType.Soft;      /* Maximum value link value for "built-in" link types */
+enum H5L_TYPE_UD_MIN = H5LType.External;  /* Link ids at or above this value are "user-defined" link types. */
 
 /* Information struct for link (for H5Lget_info/H5Lget_info_by_idx) */
-struct H5L_info_t {
-    H5L_type_t          type;           /* Type of link                   */
-    hbool_t             corder_valid;   /* Indicate if creation order is valid */
-    int64_t             corder;         /* Creation order                 */
-    H5TCset          cset;           /* Character set of link name     */
-    union u {
-        haddr_t         address;        /* Address hard link points to    */
-        size_t          val_size;       /* Size of a soft link or UD link value */
-    };
-}
+  struct H5LInfo {
+      H5LType          type;           /* Type of link                   */
+      hbool_t             corder_valid;   /* Indicate if creation order is valid */
+      int64_t             corder;         /* Creation order                 */
+      H5TCset          cset;           /* Character set of link name     */
+      union u {
+          haddr_t         address;        /* Address hard link points to    */
+          size_t          val_size;       /* Size of a soft link or UD link value */
+      };
+  }
 
 extern(C)
 {
@@ -783,46 +794,39 @@ extern(C)
  */
 /* Callback prototypes for user-defined links */
 /* Link creation callback */
-alias H5L_create_func_t = herr_t function(const char *link_name, hid_t loc_group,
-    const void *lnkdata, size_t lnkdata_size, hid_t lcpl_id);
+alias H5L_create_func_t = herr_t function(const char *link_name, hid_t loc_group, const void *lnkdata, size_t lnkdata_size, hid_t lcpl_id);
 
 /* Callback for when the link is moved */
-alias H5L_move_func_t = herr_t function(const char *new_name, hid_t new_loc,
-    const void *lnkdata, size_t lnkdata_size);
+alias H5L_move_func_t = herr_t function(const char *new_name, hid_t new_loc, const void *lnkdata, size_t lnkdata_size);
 
 /* Callback for when the link is copied */
-alias H5L_copy_func_t = herr_t function(const char *new_name, hid_t new_loc,
-    const void *lnkdata, size_t lnkdata_size);
+alias H5L_copy_func_t = herr_t function(const char *new_name, hid_t new_loc, const void *lnkdata, size_t lnkdata_size);
 
 /* Callback during link traversal */
-alias H5L_traverse_func_t = herr_t function(const char *link_name, hid_t cur_group,
-    const void *lnkdata, size_t lnkdata_size, hid_t lapl_id);
+alias H5L_traverse_func_t = herr_t function(const char *link_name, hid_t cur_group, const void *lnkdata, size_t lnkdata_size, hid_t lapl_id);
 
 /* Callback for when the link is deleted */
-alias H5L_delete_func_t = herr_t function(const char *link_name, hid_t file,
-    const void *lnkdata, size_t lnkdata_size);
+alias H5L_delete_func_t = herr_t function(const char *link_name, hid_t file, const void *lnkdata, size_t lnkdata_size);
 
 /* Callback for querying the link */
 /* Returns the size of the buffer needed */
-alias H5L_query_func_t = ssize_t function(const char *link_name, const void *lnkdata,
-    size_t lnkdata_size, void *buf /*out*/, size_t buf_size);
+alias H5L_query_func_t = ssize_t function(const char *link_name, const void *lnkdata, size_t lnkdata_size, void *buf /*out*/, size_t buf_size);
 
 /* User-defined link types */
-struct H5L_class_t {
-    int _version;                    /* Version number of this struct        */
-    H5L_type_t id;                  /* Link type ID                         */
-    const char *comment;            /* Comment for debugging                */
-    H5L_create_func_t create_func;  /* Callback during link creation        */
-    H5L_move_func_t move_func;      /* Callback after moving link           */
-    H5L_copy_func_t copy_func;      /* Callback after copying link          */
-    H5L_traverse_func_t trav_func;  /* Callback during link traversal       */
-    H5L_delete_func_t del_func;     /* Callback for link deletion           */
-    H5L_query_func_t query_func;    /* Callback for queries                 */
-}
+  struct H5L_class_t {
+      int _version;                    /* Version number of this struct        */
+      H5LType id;                  /* Link type ID                         */
+      const char *comment;            /* Comment for debugging                */
+      H5L_create_func_t create_func;  /* Callback during link creation        */
+      H5L_move_func_t move_func;      /* Callback after moving link           */
+      H5L_copy_func_t copy_func;      /* Callback after copying link          */
+      H5L_traverse_func_t trav_func;  /* Callback during link traversal       */
+      H5L_delete_func_t del_func;     /* Callback for link deletion           */
+      H5L_query_func_t query_func;    /* Callback for queries                 */
+  }
 
 /* Prototype for H5Literate/H5Literate_by_name() operator */
-alias H5L_iterate_t = herr_t function(hid_t group, const char *name, const H5L_info_t *info,
-    void *op_data);
+alias H5L_iterate_t = herr_t function(hid_t group, const char *name, const H5LInfo *info, void *op_data);
 
 /* Callback for external link traversal */
 alias H5L_elink_traverse_t = herr_t function(const char *parent_file_name,
@@ -849,18 +853,18 @@ version(Posix)
     herr_t H5Lget_val(hid_t loc_id, const char *name, void *buf/*out*/, size_t size, hid_t lapl_id);
     herr_t H5Lget_val_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, void *buf/*out*/, size_t size, hid_t lapl_id);
     htri_t H5Lexists(hid_t loc_id, const char *name, hid_t lapl_id);
-    herr_t H5Lget_info(hid_t loc_id, const char *name, H5L_info_t *linfo /*out*/, hid_t lapl_id);
-    herr_t H5Lget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5L_info_t *linfo /*out*/, hid_t lapl_id); ssize_t H5Lget_name_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, char *name /*out*/, size_t size, hid_t lapl_id);
+    herr_t H5Lget_info(hid_t loc_id, const char *name, H5LInfo *linfo /*out*/, hid_t lapl_id);
+    herr_t H5Lget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5LInfo *linfo /*out*/, hid_t lapl_id); ssize_t H5Lget_name_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, char *name /*out*/, size_t size, hid_t lapl_id);
     herr_t H5Literate(hid_t grp_id, H5Index idx_type, H5IterOrder order, hsize_t *idx, H5L_iterate_t op, void *op_data);
     herr_t H5Literate_by_name(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t *idx, H5L_iterate_t op, void *op_data, hid_t lapl_id);
     herr_t H5Lvisit(hid_t grp_id, H5Index idx_type, H5IterOrder order, H5L_iterate_t op, void *op_data);
     herr_t H5Lvisit_by_name(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, H5L_iterate_t op, void *op_data, hid_t lapl_id);
 
     /* UD link functions */
-    herr_t H5Lcreate_ud(hid_t link_loc_id, const char *link_name, H5L_type_t link_type, const void *udata, size_t udata_size, hid_t lcpl_id, hid_t lapl_id);
+    herr_t H5Lcreate_ud(hid_t link_loc_id, const char *link_name, H5LType link_type, const void *udata, size_t udata_size, hid_t lcpl_id, hid_t lapl_id);
     herr_t H5Lregister(const H5L_class_t *cls);
-    herr_t H5Lunregister(H5L_type_t id);
-    htri_t H5Lis_registered(H5L_type_t id);
+    herr_t H5Lunregister(H5LType id);
+    htri_t H5Lis_registered(H5LType id);
 
     /* External link functions */
     herr_t H5Lunpack_elink_val(const void *ext_linkval/*in*/, size_t link_size, uint *flags, const char **filename/*out*/, const char **obj_path /*out*/);
@@ -921,37 +925,40 @@ extern(C)
   /*******************/
 
   /* Types of objects in file */
-  enum H5O_type_t {
-      H5O_TYPE_UNKNOWN = -1,  /* Unknown object type      */
-      H5O_TYPE_GROUP,         /* Object is a group        */
-      H5O_TYPE_DATASET,       /* Object is a dataset      */
-      H5O_TYPE_NAMED_DATATYPE,    /* Object is a named data type  */
-      H5O_TYPE_NTYPES             /* Number of different object types (must be last!) */
+  enum H5OType {
+      Unknown = -1,  /* Unknown object type      */
+      Group,         /* Object is a group        */
+      Dataset,       /* Object is a dataset      */
+      NamedDataType,    /* Object is a named data type  */
+      TypeNTypes             /* Number of different object types (must be last!) */
   }
 
   /* Information struct for object header metadata (for H5Oget_info/H5Oget_info_by_name/H5Oget_info_by_idx) */
-  struct H5O_hdr_info_t {
-      uint _version;      /* Version number of header format in file */
-      uint nmesgs;        /* Number of object header messages */
-      uint nchunks;       /* Number of object header chunks */
-      uint flags;             /* Object header status flags */
-      struct space {
-          hsize_t total;      /* Total space for storing object header in file */
-          hsize_t meta;       /* Space within header for object header metadata information */
-          hsize_t mesg;       /* Space within header for actual message information */
-          hsize_t free;       /* Free space within object header */
-      }
-      struct mesg {
-          uint64_t present;   /* Flags to indicate presence of message type in header */
-          uint64_t _shared;   /* Flags to indicate message type is shared in header */
-      }
+  align(1)
+  {
+    struct H5O_hdr_info_t {
+        uint _version;      /* Version number of header format in file */
+        uint nmesgs;        /* Number of object header messages */
+        uint nchunks;       /* Number of object header chunks */
+        uint flags;             /* Object header status flags */
+        struct space {
+            hsize_t total;      /* Total space for storing object header in file */
+            hsize_t meta;       /* Space within header for object header metadata information */
+            hsize_t mesg;       /* Space within header for actual message information */
+            hsize_t free;       /* Free space within object header */
+        }
+        struct mesg {
+            uint64_t present;   /* Flags to indicate presence of message type in header */
+            uint64_t _shared;   /* Flags to indicate message type is shared in header */
+        }
+    }
   }
 
   /* Information struct for object (for H5Oget_info/H5Oget_info_by_name/H5Oget_info_by_idx) */
-  struct H5O_info_t {
-      uint    fileno;     /* File number that object is located in */
+    struct H5O_info_t {
+      ulong    fileno;     /* File number that object is located in */
       haddr_t         addr;       /* Object address in file   */
-      H5O_type_t      type;       /* Basic object type (group, dataset, etc.) */
+      H5OType       type;       /* Basic object type (group, dataset, etc.) */
       uint        rc;     /* Reference count of object    */
       time_t      atime;      /* Access time          */
       time_t      mtime;      /* Modification time        */
@@ -964,7 +971,7 @@ extern(C)
           H5_ih_info_t   obj;             /* v1/v2 B-tree & local/fractal heap for groups, B-tree for chunked datasets */
           H5_ih_info_t   attr;            /* v2 B-tree & heap for attributes */
       }
-  }
+    }
 }
 
 extern(C)
@@ -973,9 +980,8 @@ extern(C)
     alias H5O_msg_crt_idx_t = uint32_t;
 
     /* Prototype for H5Ovisit/H5Ovisit_by_name() operator */
-    alias H5O_iterate_t = herr_t function(hid_t obj, const char *name, const H5O_info_t *info,
-        void *op_data);
-}
+    alias H5O_iterate_t = herr_t function(hid_t obj, const char *name, const H5O_info_t *info, void *op_data);
+  }
     enum H5O_mcdt_search_ret_t {
         H5O_MCDT_SEARCH_ERROR = -1, /* Abort H5Ocopy */
         H5O_MCDT_SEARCH_CONT,   /* Continue the global search of all committed datatypes in the destination file */
@@ -1001,7 +1007,7 @@ version(Posix)
     hid_t H5Oopen_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, hid_t lapl_id);
     htri_t H5Oexists_by_name(hid_t loc_id, const char *name, hid_t lapl_id);
     herr_t H5Oget_info(hid_t loc_id, H5O_info_t *oinfo);
-    herr_t H5Oget_info_by_name(hid_t loc_id, const char *name, H5O_info_t *oinfo, hid_t lapl_id);
+    herr_t H5Oget_info_by_name(hid_t loc_id, const (char *)name, H5O_info_t *oinfo, hid_t lapl_id);
     herr_t H5Oget_info_by_idx(hid_t loc_id, const char *group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5O_info_t *oinfo, hid_t lapl_id);
     herr_t H5Olink(hid_t obj_id, hid_t new_loc_id, const char *new_name, hid_t lcpl_id, hid_t lapl_id);
     herr_t H5Oincr_refcount(hid_t object_id);
@@ -1183,18 +1189,13 @@ extern(C)
 version(Posix) {
   extern(C)
   {
-
     /* Generic property list routines */
-    hid_t H5Pcreate_class(hid_t parent, const char *name,
-        H5P_cls_create_func_t cls_create, void *create_data,
-        H5P_cls_copy_func_t cls_copy, void *copy_data,
-        H5P_cls_close_func_t cls_close, void *close_data);
+    hid_t H5Pcreate_class(hid_t parent, const char *name, H5P_cls_create_func_t cls_create, void *create_data,
+        H5P_cls_copy_func_t cls_copy, void *copy_data, H5P_cls_close_func_t cls_close, void *close_data);
     char *H5Pget_class_name(hid_t pclass_id);
     hid_t H5Pcreate(hid_t cls_id);
-    herr_t H5Pregister2(hid_t cls_id, const char *name, size_t size,
-        void *def_value, H5P_prp_create_func_t prp_create,
-        H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
-        H5P_prp_delete_func_t prp_del, H5P_prp_copy_func_t prp_copy,
+    herr_t H5Pregister2(hid_t cls_id, const char *name, size_t size, void *def_value, H5P_prp_create_func_t prp_create,
+        H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get, H5P_prp_delete_func_t prp_del, H5P_prp_copy_func_t prp_copy,
         H5P_prp_compare_func_t prp_cmp, H5P_prp_close_func_t prp_close);
     herr_t H5Pinsert2(hid_t plist_id, const char *name, size_t size,
         void *value, H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
@@ -1227,20 +1228,18 @@ version(Posix) {
     herr_t H5Pget_obj_track_times(hid_t plist_id, hbool_t *track_times);
     herr_t H5Pmodify_filter(hid_t plist_id, H5ZFilter filter,
             int flags, size_t cd_nelmts,
-            const int cd_values[/*cd_nelmts*/]);
-    herr_t H5Pset_filter(hid_t plist_id, H5ZFilter filter,
-            int flags, size_t cd_nelmts,
-            const int c_values[]);
+            const int* cd_values);
+    herr_t H5Pset_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int* c_values);
     int H5Pget_nfilters(hid_t plist_id);
     H5ZFilter H5Pget_filter2(hid_t plist_id, uint filter,
            int *flags/*out*/,
            size_t *cd_nelmts/*out*/,
-           uint cd_values[]/*out*/,
-           size_t namelen, char name[],
+           uint* cd_values/*out*/,
+           size_t namelen, char* name,
            uint *filter_config /*out*/);
     herr_t H5Pget_filter_by_id2(hid_t plist_id, H5ZFilter id,
            uint *flags/*out*/, size_t *cd_nelmts/*out*/,
-           int cd_values[]/*out*/, size_t namelen, char name[]/*out*/,
+           int* cd_values/*out*/, size_t namelen, char* name/*out*/,
            int *filter_config/*out*/);
     htri_t H5Pall_filters_avail(hid_t plist_id);
     herr_t H5Premove_filter(hid_t plist_id, H5ZFilter filter);
@@ -1320,10 +1319,8 @@ version(Posix) {
     herr_t H5Pset_shuffle(hid_t plist_id);
     herr_t H5Pset_nbit(hid_t plist_id);
     herr_t H5Pset_scaleoffset(hid_t plist_id, H5Z_SO_scale_type_t scale_type, int scale_factor);
-    herr_t H5Pset_fill_value(hid_t plist_id, hid_t type_id,
-         const void *value);
-    herr_t H5Pget_fill_value(hid_t plist_id, hid_t type_id,
-         void *value/*out*/);
+    herr_t H5Pset_fill_value(hid_t plist_id, hid_t type_id, const void *value);
+    herr_t H5Pget_fill_value(hid_t plist_id, hid_t type_id, void *value/*out*/);
     herr_t H5Pfill_value_defined(hid_t plist, H5D_fill_value_t *status);
     herr_t H5Pset_alloc_time(hid_t plist_id, H5DAllocTime alloc_time);
     herr_t H5Pget_alloc_time(hid_t plist_id, H5DAllocTime *alloc_time/*out*/);
@@ -1411,6 +1408,41 @@ version(Posix) {
 
     }
 }
+
+enum H5RType
+{
+    BadType=-1,   /*invalid Reference Type                     */
+    ObjectRef,                 /*Object reference                           */
+    DatasetRegion,         /*Dataset Region Reference                   */
+    MaxType                /*highest type (Invalid as true type)      */
+}
+
+/* Note! Be careful with the sizes of the references because they should really
+ * depend on the run-time values in the file.  Unfortunately, the arrays need
+ * to be defined at compile-time, so we have to go with the worst case sizes for
+ * them.  -QAK
+ */
+enum  H5R_OBJ_REF_BUF_SIZE =haddr_t.sizeof;
+/* Object reference structure for user's code */
+//alias  hobj_ref_t  haddr_t ; /* Needs to be large enough to store largest haddr_t in a worst case machine (ie. 8 bytes currently) */
+
+enum H5R_DSET_REG_REF_BUF_SIZE  =haddr_t.sizeof+4;
+/* 4 is used instead of sizeof(int) to permit portability between
+   the Crays and other machines (the heap ID is always encoded as an int32 anyway)
+*/
+/* Dataset Region reference structure for user's code */
+alias hdset_reg_ref_t = ubyte[H5R_DSET_REG_REF_BUF_SIZE];/* Buffer to store heap ID and index */
+/* Needs to be large enough to store largest haddr_t in a worst case machine (ie. 8 bytes currently) plus an int */
+
+extern(C)
+{
+   herr_t H5Rcreate(void *_ref, hid_t loc_id, const char *name, H5RType reftype, hid_t space_id);
+   hid_t H5Rdereference(hid_t dataset, H5RType ref_type, const void *_ref);
+   hid_t H5Rget_region(hid_t dataset, H5RType ref_type, const void *_ref);
+   herr_t H5Rget_obj_type2(hid_t id, H5RType ref_type, const void *_ref, H5OType *obj_type);
+   ssize_t H5Rget_name(hid_t loc_id, H5RType ref_type, const void *_ref, char *name/*out*/, size_t size);
+}
+
 
 /* Define atomic datatypes */
 enum H5S_ALL = 0;
@@ -1670,12 +1702,12 @@ enum H5T_bkg_t {
 }
 
 /* Type conversion client data */
-struct H5T_cdata_t {
-    H5T_cmd_t       command;/*what should the conversion function do?    */
-    H5T_bkg_t       need_bkg;/*is the background buffer needed?      */
-    hbool_t     recalc; /*recalculate private data           */
-    void        *priv;  /*private data                   */
-}
+  struct H5T_cdata_t {
+      H5T_cmd_t       command;/*what should the conversion function do?    */
+      H5T_bkg_t       need_bkg;/*is the background buffer needed?      */
+      hbool_t     recalc; /*recalculate private data           */
+      void        *priv;  /*private data                   */
+  }
 
 /* Conversion function persistence */
 enum H5T_pers_t {
@@ -1712,10 +1744,10 @@ enum H5T_conv_ret_t {
 
 /* Variable Length Datatype struct in memory */
 /* (This is only used for VL sequences, not VL strings, which are stored in char *'s) */
-struct hvl_t {
-    size_t len; /* Length of VL data (in base type units) */
-    void *p;    /* Pointer to VL data */
-}
+  struct hvl_t {
+      size_t len; /* Length of VL data (in base type units) */
+      void *p;    /* Pointer to VL data */
+  }
 
 /* Variable Length String information */
 enum H5T_VARIABLE = (cast(size_t)(-1));  /* Indicate that a string is variable length (null-terminated in C, instead of fixed length) */
@@ -1998,7 +2030,7 @@ extern(C)
     hid_t H5Tarray_create2(hid_t base_id, uint ndims,
                 const hsize_t dim[/* ndims */]);
     int H5Tget_array_ndims(hid_t type_id);
-    int H5Tget_array_dims2(hid_t type_id, hsize_t dims[]);
+    int H5Tget_array_dims2(hid_t type_id, hsize_t* dims);
 
     /* Operations defined on opaque datatypes */
     herr_t H5Tset_tag(hid_t type, const char *tag);
@@ -2162,15 +2194,15 @@ extern(C)
                                     size_t buf_size, void* op_data);
 
     /* Structure for filter callback property */
-    struct H5Z_cb_t {
-        H5Z_filter_func_t func;
-        void*              op_data;
-    }
+        struct H5Z_cb_t {
+          H5Z_filter_func_t func;
+          void*              op_data;
+       }
     alias H5Z_can_apply_func_t = htri_t function(hid_t dcpl_id, hid_t type_id, hid_t space_id);
     alias H5Z_set_local_func_t = herr_t function(hid_t dcpl_id, hid_t type_id, hid_t space_id);
-    alias H5Z_func_t = size_t function(uint flags, size_t cd_nelmts, const uint cd_values[], size_t nbytes, size_t *buf_size, void **buf);
+    alias H5Z_func_t = size_t function(uint flags, size_t cd_nelmts, const uint* cd_values, size_t nbytes, size_t *buf_size, void **buf);
 
-    struct H5Z_class2_t {
+      struct H5Z_class2_t {
         int _version;                /* Version number of the H5Z_class_t struct */
         H5ZFilter id;        /* Filter ID number              */
         int encoder_present;   /* Does this filter have an encoder? */
@@ -2179,7 +2211,7 @@ extern(C)
         H5Z_can_apply_func_t can_apply; /* The "can apply" callback for a filter */
         H5Z_set_local_func_t set_local; /* The "set local" callback for a filter */
         H5Z_func_t filter;      /* The actual filter function            */
-    }
+      }
 
     herr_t H5Zregister(const void *cls);
     herr_t H5Zunregister(H5ZFilter id);
@@ -2427,7 +2459,7 @@ struct H5A
     if (H5Aget_name(attr_id,buf.length,cast(char*)buf)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -2437,7 +2469,7 @@ struct H5A
     if (H5Aget_name_by_idx(loc_id,toStringz(obj_name),idx_type,order,n,cast(char*)buf,buf.length,lapl_id)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -2523,7 +2555,7 @@ struct H5D
 {
   static
   {
-  // alias - hope it is correct!
+// alias - hope it is correct!
   hid_t create2(hid_t loc_id, string name, hid_t type_id, hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id)
   {
     return H5Dcreate2(loc_id, toStringz(name), type_id,  space_id,  lcpl_id,  dcpl_id, dapl_id);
@@ -2572,7 +2604,7 @@ struct H5D
   {
       return H5Dget_offset(dset_id);
   }
-  void read(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t plist_id, ubyte *buf/*out*/)
+  void read(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t plist_id, ubyte* buf/*out*/)
   {
       throwOnError(H5Dread(dset_id, mem_type_id, mem_space_id, file_space_id, plist_id,cast(void*)buf/*out*/));
   }
@@ -2799,19 +2831,19 @@ struct H5G
   }
  
  
-  void get_info(hid_t loc_id, H5G_info_t *ginfo)
+  void get_info(hid_t loc_id, H5GInfo *ginfo)
   {
     throwOnError(H5Gget_info(loc_id,ginfo));
   }
  
  
-  void get_info_by_name(hid_t loc_id, string name, H5G_info_t *ginfo, hid_t lapl_id)
+  void get_info_by_name(hid_t loc_id, string name, H5GInfo *ginfo, hid_t lapl_id)
   {
     throwOnError(H5Gget_info_by_name(loc_id,toStringz(name),ginfo,lapl_id));
   }
  
  
-  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5G_info_t *ginfo, hid_t lapl_id)
+  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5GInfo *ginfo, hid_t lapl_id)
   {
     throwOnError(H5Gget_info_by_idx(loc_id,toStringz(group_name),idx_type,order,n,ginfo,lapl_id));
   }
@@ -2828,25 +2860,25 @@ struct H5I
 {
   static
   {
-  hid_t register(H5I_type_t type, const void *object)
+  hid_t register(H5IType type, const void *object)
   {
     return H5Iregister(type,object);
   }
  
  
-  void *object_verify(hid_t id, H5I_type_t id_type)
+  void *object_verify(hid_t id, H5IType id_type)
   {
     return H5Iobject_verify(id,id_type);
   }
  
  
-  void *remove_verify(hid_t id, H5I_type_t id_type)
+  void *remove_verify(hid_t id, H5IType id_type)
   {
     return H5Iremove_verify(id,id_type);
   }
  
  
-  H5I_type_t get_type(hid_t id)
+  H5IType get_type(hid_t id)
   {
     return H5Iget_type(id);
   }
@@ -2864,7 +2896,7 @@ struct H5I
     if(H5Iget_name(id,cast(char*)buf,buf.length)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -2886,55 +2918,55 @@ struct H5I
   }
  
  
-  H5I_type_t register_type(size_t hash_size, uint reserved, H5I_free_t free_func)
+  H5IType register_type(size_t hash_size, uint reserved, H5I_free_t free_func)
   {
     return H5Iregister_type(hash_size,reserved,free_func);
   }
  
  
-  void clear_type(H5I_type_t type, hbool_t force)
+  void clear_type(H5IType type, hbool_t force)
   {
     throwOnError(H5Iclear_type(type,force));
   }
  
  
-  void destroy_type(H5I_type_t type)
+  void destroy_type(H5IType type)
   {
     throwOnError(H5Idestroy_type(type));
   }
  
  
-  int inc_type_ref(H5I_type_t type)
+  int inc_type_ref(H5IType type)
   {
     return H5Iinc_type_ref(type);
   }
  
  
-  int dec_type_ref(H5I_type_t type)
+  int dec_type_ref(H5IType type)
   {
     return H5Idec_type_ref(type);
   }
  
  
-  int get_type_ref(H5I_type_t type)
+  int get_type_ref(H5IType type)
   {
     return H5Iget_type_ref(type);
   }
  
  
-  void *H5Isearch(H5I_type_t type, H5I_search_func_t func, void *key)
+  void *H5Isearch(H5IType type, H5I_search_func_t func, void *key)
   {
     return H5Isearch(type,func,key);
   }
  
  
-  void nmembers(H5I_type_t type, hsize_t *num_members)
+  void nmembers(H5IType type, hsize_t *num_members)
   {
     throwOnError(H5Inmembers(type,num_members));
   }
  
  
-  htri_t type_exists(H5I_type_t type)
+  htri_t type_exists(H5IType type)
   {
     return H5Itype_exists(type);
   }
@@ -3003,7 +3035,7 @@ struct H5L
   }
  
  
-  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5L_info_t *linfo /*out*/, hid_t lapl_id)
+  void get_info_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5LInfo *linfo /*out*/, hid_t lapl_id)
   {
     throwOnError(H5Lget_info_by_idx(loc_id,toStringz(group_name),idx_type,order,n,linfo,lapl_id));
   }
@@ -3016,7 +3048,7 @@ struct H5L
       return "";
     else
     {
-      return ZtoString(buf);
+      return ZtoString(buf[]);
     }
   }
  
@@ -3043,7 +3075,7 @@ struct H5L
 
   void visit(hid_t grp_id, H5Index idx_type, H5IterOrder order, H5L_iterate_t op, void *op_data)
   {
-  throwOnError(H5Lvisit(grp_id, idx_type, order,op, op_data));
+    throwOnError(H5Lvisit(grp_id, idx_type, order,op, op_data));
   }
   
   void visit_by_name(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, H5L_iterate_t op, void *op_data, hid_t lapl_id)
@@ -3051,7 +3083,7 @@ struct H5L
     throwOnError(H5Lvisit_by_name(loc_id,toStringz(group_name),idx_type,order,op,op_data,lapl_id));
   }
  
-  void create_ud(hid_t link_loc_id, string link_name, H5L_type_t link_type, const void *udata, size_t udata_size, hid_t lcpl_id, hid_t lapl_id)
+  void create_ud(hid_t link_loc_id, string link_name, H5LType link_type, const void *udata, size_t udata_size, hid_t lcpl_id, hid_t lapl_id)
   {
     throwOnError(H5Lcreate_ud(link_loc_id,toStringz(link_name),link_type,udata,udata_size,lcpl_id,lapl_id));
   }
@@ -3063,13 +3095,13 @@ struct H5L
   }
  
  
-  void unregister(H5L_type_t id)
+  void unregister(H5LType id)
   {
     throwOnError(H5Lunregister(id));
   }
  
  
-  htri_t is_registered(H5L_type_t id)
+  htri_t is_registered(H5LType id)
   {
     return H5Lis_registered(id);
   }
@@ -3100,34 +3132,31 @@ struct H5O
     return H5Oopen(loc_id,toStringz(name),lapl_id);
   }
  
- 
   hid_t open_by_addr(hid_t loc_id, haddr_t addr)
   {
     return H5Oopen_by_addr(loc_id,addr);
   }
- 
  
   hid_t open_by_idx(hid_t loc_id, string group_name, H5Index idx_type, H5IterOrder order, hsize_t n, hid_t lapl_id)
   {
     return H5Oopen_by_idx(loc_id,toStringz(group_name),idx_type,order,n,lapl_id);
   }
  
- 
   htri_t exists_by_name(hid_t loc_id, string name, hid_t lapl_id)
   {
     return H5Oexists_by_name(loc_id,toStringz(name),lapl_id);
   }
- 
  
   void get_info(hid_t loc_id, H5O_info_t *oinfo)
   {
     throwOnError(H5Oget_info(loc_id,oinfo));
   }
  
- 
   void get_info_by_name(hid_t loc_id, string name, H5O_info_t *oinfo, hid_t lapl_id)
   {
+    //writefln("getinfobyname: %s",name);
     throwOnError(H5Oget_info_by_name(loc_id,toStringz(name),oinfo,lapl_id));
+    //writefln("passed throw");
   }
  
  
@@ -3135,7 +3164,6 @@ struct H5O
   {
     throwOnError(H5Oget_info_by_idx(loc_id,toStringz(group_name),idx_type,order,n,oinfo,lapl_id));
   }
- 
  
   void link(hid_t obj_id, hid_t new_loc_id, string new_name, hid_t lcpl_id, hid_t lapl_id)
   {
@@ -3179,7 +3207,7 @@ struct H5O
     if (H5Oget_comment(obj_id,cast(char*)buf,buf.length)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -3189,7 +3217,7 @@ struct H5O
     if (H5Oget_comment_by_name(loc_id,toStringz(name),cast(char*)buf,buf.length,lapl_id)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -3246,9 +3274,10 @@ struct H5P
   }
  
  
-  void set(hid_t plist_id, string name, void *value)
+  void set(hid_t plist_id, string name, string value)
   {
-    throwOnError(H5Pset(plist_id,toStringz(name),value));
+    void *buf=cast(void*)toStringz(value);
+    throwOnError(H5Pset(plist_id,toStringz(name),buf));
   }
  
  
@@ -3384,15 +3413,15 @@ struct H5P
   }
  
  
-  void modify_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int cd_values[/*cd_nelmts*/])
+  void modify_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int[] cd_values)
   {
-    throwOnError(H5Pmodify_filter(plist_id,filter,flags,cd_nelmts,cd_values));
+    throwOnError(H5Pmodify_filter(plist_id,filter,flags,cd_nelmts,cast(const int*)&cd_values));
   }
  
  
   void set_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int c_values[])
   {
-    throwOnError(H5Pset_filter(plist_id,filter,flags,cd_nelmts,c_values));
+    throwOnError(H5Pset_filter(plist_id,filter,flags,cd_nelmts,cast(const int*)&c_values));
   }
  
  
@@ -3404,13 +3433,13 @@ struct H5P
  
   H5ZFilter get_filter2(hid_t plist_id, uint filter, int *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[], uint *filter_config /*out*/)
   {
-    return H5Pget_filter2(plist_id,filter,flags/*out*/,cd_nelmts/*out*/,cd_values[]/*out*/,namelen,name[],filter_config);
+    return H5Pget_filter2(plist_id,filter,flags/*out*/,cd_nelmts/*out*/,cast(uint*)&cd_values/*out*/,namelen,cast(char*)&name,filter_config);
   }
  
  
   void get_filter_by_id2(hid_t plist_id, H5ZFilter id, uint *flags/*out*/, size_t *cd_nelmts/*out*/, int cd_values[]/*out*/, size_t namelen, char name[]/*out*/, int *filter_config/*out*/)
   {
-    throwOnError(H5Pget_filter_by_id2(plist_id,id,flags/*out*/,cd_nelmts/*out*/,cd_values[]/*out*/,namelen,name[]/*out*/,filter_config));
+    throwOnError(H5Pget_filter_by_id2(plist_id,id,flags/*out*/,cd_nelmts/*out*/,cast(int*)&cd_values/*out*/,namelen,cast(char*)&name/*out*/,filter_config));
   }
  
  
@@ -3678,7 +3707,7 @@ struct H5P
   }
  
  
-  version(h5paralell)
+  version(h5parallel)
   {
     void set_core_write_tracking(hid_t fapl_id, hbool_t is_enabled, size_t page_size)
     {
@@ -3827,7 +3856,7 @@ struct H5P
     if (H5Pget_data_transform(plist_id,cast(char*)buf,buf.length)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -4025,7 +4054,7 @@ struct H5P
     if (H5Pget_elink_prefix(plist_id,cast(char*)buf,buf.length)<=0)
       return "";
     else
-      return ZtoString(buf);
+      return ZtoString(buf[]);
   }
  
  
@@ -4077,6 +4106,38 @@ struct H5P
   }
   }//static
 }
+
+struct H5R
+{
+  static
+  {
+    void create(void *_ref, hid_t loc_id, string name, H5RType ref_type, hid_t space_id)
+    {
+      throwOnError(H5Rcreate(_ref, loc_id, toStringz(name),ref_type,space_id));
+    }
+   hid_t dereference(hid_t dataset, H5RType ref_type, const void *_ref)
+   {
+      return H5Rdereference(dataset, ref_type, _ref);
+   }
+   hid_t get_region(hid_t dataset, H5RType ref_type, const void *_ref)
+   {
+      return  H5Rget_region(dataset, ref_type, _ref);
+   }
+   string get_name(hid_t loc_id, H5RType ref_type, const void *_ref)
+   {
+      char[2048] buf;
+      if (H5Rget_name(loc_id, ref_type,_ref,cast(char*)buf,buf.length-1)<=0)
+        return "";
+      else
+        return ZtoString(buf[]);
+    }
+    void get_obj_type2(hid_t id, H5RType ref_type, const void *_ref, H5OType *obj_type)
+    {
+      throwOnError(H5Rget_obj_type2( id, ref_type,_ref,  obj_type));
+    }
+  } // static
+}
+
 struct H5S
 {
   static {
@@ -4403,7 +4464,7 @@ struct H5T
   {
     char[2048] buf;
     throwOnError(H5Tenum_nameof(type,value,cast(char*)buf,buf.length));
-    return ZtoString(buf);
+    return ZtoString(buf[]);
   }
  
  
@@ -4433,7 +4494,7 @@ struct H5T
  
   static int get_array_dims2(hid_t type_id, hsize_t[] dims)
   {
-    return H5Tget_array_dims2(type_id,cast(hsize_t[])dims);
+    return H5Tget_array_dims2(type_id,cast(hsize_t*)&dims);
   }
  
  

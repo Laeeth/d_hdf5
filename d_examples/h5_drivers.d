@@ -21,7 +21,8 @@
   should be checked.
 */ 
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.file;
 import std.stdio;
 import std.exception;

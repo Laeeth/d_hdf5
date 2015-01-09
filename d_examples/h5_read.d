@@ -21,7 +21,8 @@
  Information about dataset in the SDS.h5 file is obtained.
 */
 
-import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 
