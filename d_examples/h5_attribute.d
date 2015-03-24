@@ -32,7 +32,7 @@ import std.stdio;
 import std.exception;
 import std.string;
 
-string H5FILE_NAME="Attributes.h5";
+string H5FILE_NAME="h5/Attributes.h5";
 enum RANK=  1;   /* Rank and size of the dataset  */
 enum SIZE = 7;
 

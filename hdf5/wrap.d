@@ -1102,15 +1102,15 @@ struct H5P
   }
  
  
-  void modify_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int[] cd_values)
+  void modify_filter(hid_t plist_id, H5ZFilter filter, uint flags, size_t cd_nelmts, const uint[] cd_values)
   {
-    throwOnError(H5Pmodify_filter(plist_id,filter,flags,cd_nelmts,cast(const int*)&cd_values));
+    throwOnError(H5Pmodify_filter(plist_id,filter,flags,cd_nelmts,cast(const uint*)&cd_values));
   }
  
  
-  void set_filter(hid_t plist_id, H5ZFilter filter, int flags, size_t cd_nelmts, const int c_values[])
+  void set_filter(hid_t plist_id, H5ZFilter filter, uint flags, size_t cd_nelmts, const uint c_values[])
   {
-    throwOnError(H5Pset_filter(plist_id,filter,flags,cd_nelmts,cast(const int*)&c_values));
+    throwOnError(H5Pset_filter(plist_id,filter,flags,cd_nelmts,cast(const uint*)&c_values));
   }
  
  
@@ -1120,15 +1120,15 @@ struct H5P
   }
  
  
-  H5ZFilter get_filter2(hid_t plist_id, uint filter, int *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[], uint *filter_config /*out*/)
+  H5ZFilter get_filter2(hid_t plist_id, uint filter, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[], uint *filter_config /*out*/)
   {
     return H5Pget_filter2(plist_id,filter,flags/*out*/,cd_nelmts/*out*/,cast(uint*)&cd_values/*out*/,namelen,cast(char*)&name,filter_config);
   }
  
  
-  void get_filter_by_id2(hid_t plist_id, H5ZFilter id, uint *flags/*out*/, size_t *cd_nelmts/*out*/, int cd_values[]/*out*/, size_t namelen, char name[]/*out*/, int *filter_config/*out*/)
+  void get_filter_by_id2(hid_t plist_id, H5ZFilter id, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[]/*out*/, uint *filter_config/*out*/)
   {
-    throwOnError(H5Pget_filter_by_id2(plist_id,id,flags/*out*/,cd_nelmts/*out*/,cast(int*)&cd_values/*out*/,namelen,cast(char*)&name/*out*/,filter_config));
+    throwOnError(H5Pget_filter_by_id2(plist_id,id,flags/*out*/,cd_nelmts/*out*/,cast(uint*)&cd_values/*out*/,namelen,cast(char*)&name/*out*/,filter_config));
   }
  
  
@@ -1838,7 +1838,7 @@ struct H5S
   hid_t create_simple(in hsize_t[] dims)
   {
     auto maxdims=dims;
-    return create_simple(dims, maxdims);
+    return H5S.create_simple(dims, maxdims);
   }
  
   hid_t create_simple(in hsize_t[] dims, in hsize_t[] maxdims)

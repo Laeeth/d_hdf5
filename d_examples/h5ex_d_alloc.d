@@ -18,7 +18,7 @@ import hdf5.bindings.enums;
 import hdf5.wrap;
 import std.stdio;
 
-string f_name="h5ex_d_alloc.h5";
+string f_name="h5/h5ex_d_alloc.h5";
 string DATASET1= "DS1";
 string DATASET2="DS2";
 enum DIM0=4;

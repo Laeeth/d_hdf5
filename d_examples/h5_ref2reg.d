@@ -34,7 +34,7 @@ import std.stdio;
 import std.exception;
 import std.string;
 
-enum filename="REF_REG.h5";
+enum filename="h5/REF_REG.h5";
 enum dsetnamev="MATRIX";
 enum dsetnamer="REGION_REFERENCES";
 

@@ -55,7 +55,7 @@ string[]  DSETNAME= [
 ];
 
 herr_t create_standard_file(string filename, hid_t fcpl);
-string f_default="d_examples/default_file.h5";
+string f_default="h5/default_file.h5";
 /*-------------------------------------------------------------------------
  * Function:    main
  *

@@ -31,7 +31,7 @@ import std.exception;
 import std.string;
 
 
-enum H5FILE_NAME="refere.h5";
+enum H5FILE_NAME="h5/refere.h5";
 
 int main(string[] args)
 {

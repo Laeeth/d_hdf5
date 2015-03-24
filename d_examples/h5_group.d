@@ -32,7 +32,7 @@ import std.string;
 import std.conv;
 import std.process;
 
-string H5FILE_NAME="group.h5";
+string H5FILE_NAME="h5/group.h5";
 enum RANK=2;
 
 int main(string[] args)

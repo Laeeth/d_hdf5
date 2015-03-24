@@ -35,13 +35,13 @@ int main(string[] args)
 	hid_t PriceBarid; //  File datatype identifier
 
 	PriceBar[] s2;
-	if (exists("test.hdf5"))
+	if (exists("h5/test.hdf5"))
 	{
-	s2=slurpDataSpaceVector!PriceBar("test.hdf5","AUD");
-	writefln("result=%s",s2);
-	writefln("returned okay and new length is %s", s2.length);
-	foreach(i,s;s2)
-	writefln("%s",s);
+		s2=slurpDataSpaceVector!PriceBar("h5/test.hdf5","AUD");
+		writefln("result=%s",s2);
+		writefln("returned okay and new length is %s", s2.length);
+		foreach(i,s;s2)
+			writefln("%s",s);
 	}
 	auto app=appender(s2);
 	PriceBar temp;
@@ -51,7 +51,7 @@ int main(string[] args)
 		temp.month=cast(ubyte)((i%12)+1);
 		app.put(temp);
 	}
-	dumpDataSpaceVector("test.hdf5","AUD2",app.data,true);
+	dumpDataSpaceVector("h5/test.hdf5","AUD2",app.data,true);
 	return 1;
 }
 

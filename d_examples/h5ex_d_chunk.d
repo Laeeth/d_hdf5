@@ -19,7 +19,7 @@ import hdf5.wrap;
 import std.stdio;
 import std.exception;
 
-string fname="h5ex_d_chunk.h5";
+string fname="h5/h5ex_d_chunk.h5";
 string DATASET="DS1";
 enum  DIM0            =6L;
 enum DIM1            =8L;

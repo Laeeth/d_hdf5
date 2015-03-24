@@ -25,7 +25,7 @@ import std.stdio;
 import std.exception;
 import std.string;
 
-string H5FILE_NAME="hdf5/SDSextendible.h5";
+string H5FILE_NAME="h5/SDSextendible.h5";
 string DATASETNAME="ExtendibleArray";
 enum RANK         =2;
 enum RANKC        =1;

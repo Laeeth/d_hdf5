@@ -23,7 +23,7 @@ import hdf5;
 import std.stdio;
 import std.exception;
 
-enum filename="d_examples/dset.h5";
+enum filename="h5/dset.h5";
 
 int main(string[] args)
 {

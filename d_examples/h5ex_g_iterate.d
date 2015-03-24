@@ -24,7 +24,7 @@ import std.stdio;
 import std.exception;
 
 
-enum   filename       ="d_examples/h5ex_g_iterate.h5";
+enum   filename       ="h5/h5ex_g_iterate.h5";
 
 /*
  * Operator function to be called by H5Giterate.

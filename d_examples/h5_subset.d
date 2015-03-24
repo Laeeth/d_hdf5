@@ -23,7 +23,7 @@
 import hdf5;
 import std.stdio;
 
-enum filename=        "d_examples/subset.h5";
+enum filename=        "h5/subset.h5";
 enum DATASETNAME ="IntArray";
 enum RANK  =2;
 

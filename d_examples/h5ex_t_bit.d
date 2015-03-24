@@ -34,7 +34,7 @@ import std.conv;
 import std.process;
 
 
-enum  filename            ="d_examples/h5/h5ex_t_bit.h5";
+enum  filename            ="h5/h5ex_t_bit.h5";
 enum  DATASET         ="DS1";
 enum  DIM0            =4;
 enum  DIM1            =7;

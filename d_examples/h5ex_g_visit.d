@@ -12,7 +12,7 @@
 #include "hdf5.h"
 #include <stdio.h>
 
-#define FILE       "h5ex_g_visit.h5"
+#define FILE       "h5/h5ex_g_visit.h5"
 
 /*
  * Operator function to be called by H5Ovisit.

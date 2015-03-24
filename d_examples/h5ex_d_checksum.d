@@ -20,7 +20,7 @@ import std.exception;
 
 alias hsize_t=ulong;
 
-string fname="h5ex_d_checksum.h5";
+string fname="h5/checksum.h5";
 string DATASET= "DS1";
 enum DIM0            =32;
 enum DIM1            =64;

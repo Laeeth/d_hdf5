@@ -30,7 +30,7 @@ import std.stdio;
 import std.exception;
 import std.string;
 
-enum  filename            ="d_examples/h5/h5ex_d_szip.h5";
+enum  filename            ="h5/h5ex_d_szip.h5";
 enum  DATASET        = "DS1";
 enum  DIM0           = 32;
 enum  DIM1           = 64;

@@ -29,7 +29,7 @@ import hdf5;
 import std.stdio;
 import std.exception;
 
-enum  H5FILE_NAME ="d_examples/Select.h5";
+enum  H5FILE_NAME ="h5/Select.h5";
 enum  MSPACE1_RANK =    1;          /* Rank of the first dataset in memory */
 enum  MSPACE1_DIM   =   50;         /* Dataset size in memory */
 

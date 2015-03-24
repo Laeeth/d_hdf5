@@ -26,7 +26,7 @@ import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 
-string H5FILE_NAME="hdf5/SDS.h5";
+string H5FILE_NAME="h5/SDS.h5";
 string DATASETNAME="IntArray";
 
 enum NX_SUB =3;           /* hyperslab dimensions */

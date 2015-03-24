@@ -27,7 +27,7 @@ import std.exception;
 import std.string;
 import std.conv;
 
-string H5FILE_NAME = "SDScompound.h5";
+string H5FILE_NAME = "h5/SDScompound.h5";
 string DATASETNAME  ="ArrayOfStructures";
 enum LENGTH =10LU;
 enum RANK          =1;

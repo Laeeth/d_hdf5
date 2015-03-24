@@ -86,7 +86,7 @@ int main(string[] args)
     int 	i,j, transform_size;
 
     writefln("* Create a new file using H5F_ACC_TRUNC access, default file creation properties, and default file access properties.");
-    file = H5F.create("dtransform.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    file = H5F.create("h5/dtransform.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     writefln("* Describe the size of the array and create the data space for fixed size dataset");
     dimsf[0] = ROWS;
     dimsf[1] = COLS;

@@ -29,7 +29,7 @@ import std.string;
 import std.stdio;
 
 
-enum FILE            ="h5ex_d_unlimadd.h5";
+enum FILE            ="h5/h5ex_d_unlimadd.h5";
 enum DATASET         ="DS1";
 enum DIM0            =4;
 enum DIM1            =7;

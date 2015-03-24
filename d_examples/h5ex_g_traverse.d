@@ -34,7 +34,7 @@ import std.string;
 import std.conv;
 import std.process;
 
-enum filename="d_examples/h5/h5ex_g_traverse.h5";
+enum filename="h5/h5ex_g_traverse.h5";
 
 /*
  * Define operator data structure type for H5Giterate callback.

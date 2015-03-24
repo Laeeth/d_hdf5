@@ -15,7 +15,7 @@ import std.stdio;
 import std.string;
 
 //enum fname="h5ex_g_visit.h5";
-enum fname="group.h5";
+enum fname="h5/group.h5";
 int main(string[] args)
 {
     H5open();

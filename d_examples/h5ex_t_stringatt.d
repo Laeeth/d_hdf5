@@ -34,7 +34,7 @@ import std.conv;
 import std.process;
 
 
-enum FILE            ="d_examples/h5/h5ex_t_stringatt.h5";
+enum FILE            ="h5/h5ex_t_stringatt.h5";
 enum DATASET        = "DS1";
 enum ATTRIBUTE       ="A1";
 enum DIM0           =4;

@@ -46,7 +46,7 @@ import std.string;
 import std.array;
 import std.stdio;
 
-enum h5parallel=0;
+alias c_ulong=ulong;
 
 enum H5_VERS_MAJOR   = 1;  /* For major interface/format changes */
 enum H5_VERS_MINOR   = 8;  /* For minor interface/format changes */
@@ -121,7 +121,7 @@ static if ( H5_SIZEOF_UINT64_T>=8 ) { }
    }
 
 /* Default value for all property list classes */
-enum H5P_DEFAULT = 0;
+enum hid_t H5P_DEFAULT = 0;
 
 /* Common iteration orders */
 enum H5IterOrder
@@ -158,14 +158,79 @@ enum H5Index {
  */
 align(1)
 {
-  struct H5_ih_info_t {
+  struct H5_ih_info_t
+  {
       hsize_t     index_size;     /* btree and/or list */
       hsize_t     heap_size;
   }
-}
 
-enum H5AC__CURR_CACHE_CONFIG_VERSION   =1;
-enum H5AC__MAX_TRACE_FILE_NAME_LEN   =1024;
+  enum H5AC__CURR_CACHE_CONFIG_VERSION=1;
+  enum H5AC__MAX_TRACE_FILE_NAME_LEN=1024;
+
+  enum H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY=0;
+  enum H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED=1;
+
+  extern(C) struct H5AC_cache_config_t
+  {
+    /* general configuration fields: */
+    int version_;
+
+    hbool_t        rpt_fcn_enabled;
+
+    hbool_t        open_trace_file;
+    hbool_t                  close_trace_file;
+    char[H5AC__MAX_TRACE_FILE_NAME_LEN + 1] trace_file_name;
+
+    hbool_t                  evictions_enabled;
+
+    hbool_t                  set_initial_size;
+    size_t                   initial_size;
+
+    double                   min_clean_fraction;
+
+    size_t                   max_size;
+    size_t                   min_size;
+
+    long epoch_length;
+
+
+    /* size increase control fields: */
+    enum H5C_cache_incr_mode incr_mode = H5C_cache_incr_mode.H5C_incr__off; // keep compiler happy; HDF5 will initialize anyway
+
+    double                   lower_hr_threshold;
+
+    double                   increment;
+
+    hbool_t                  apply_max_increment;
+    size_t                   max_increment;
+
+    enum H5C_cache_flash_incr_mode      flash_incr_mode = H5C_cache_flash_incr_mode.H5C_flash_incr__off;  // keep compiler happy; HDF5 will initialize anyway
+    double                              flash_multiple;
+    double                              flash_threshold;
+
+
+    /* size decrease control fields: */
+    enum H5C_cache_decr_mode decr_mode = H5C_cache_decr_mode.H5C_decr__off; // keep compiler happy; HDF5 will initialize anyway
+
+    double                   upper_hr_threshold;
+
+    double                   decrement;
+
+    hbool_t                  apply_max_decrement;
+    size_t                   max_decrement;
+
+    int                      epochs_before_eviction;
+
+    hbool_t                  apply_empty_reserve;
+    double                   empty_reserve;
+
+
+    /* parallel configuration fields: */
+    int                      dirty_bytes_threshold;
+    int                      metadata_write_strategy;
+
+  }
+}
 
 enum H5AC_METADATA
 {
@@ -241,6 +306,25 @@ struct H5ACCacheConfig
 /*****************/
 /* Public Macros */
 /*****************/
+enum H5C_cache_incr_mode
+{
+    H5C_incr__off,
+    H5C_incr__threshold
+};
+
+enum H5C_cache_flash_incr_mode
+{
+     H5C_flash_incr__off,
+     H5C_flash_incr__add_space
+};
+
+enum H5C_cache_decr_mode
+{
+    H5C_decr__off,
+    H5C_decr__threshold,
+    H5C_decr__age_out,
+    H5C_decr__age_out_with_threshold
+};
 
 /* Macros used to "unset" chunk cache configuration parameters */
 enum H5D_CHUNK_CACHE_NSLOTS_DEFAULT = (cast(size_t) -1);
@@ -253,11 +337,6 @@ enum H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME  = "direct_chunk_filters";
 enum H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME   = "direct_chunk_offset";
 enum H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME = "direct_chunk_datasize";
 
-/*******************/
-/* Public Typedefs */
-/*******************/
-
-/* Values for the H5D_LAYOUT property */
 enum H5DLayout
 {
     Error    = -1,
@@ -305,6 +384,18 @@ enum H5D_fill_value_t {
     H5D_FILL_VALUE_UNDEFINED    =0,
     H5D_FILL_VALUE_DEFAULT      =1,
     H5D_FILL_VALUE_USER_DEFINED =2
+}
+
+enum H5FD_file_image_op_t
+{
+    H5FD_FILE_IMAGE_OP_NO_OP,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,     
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE,
+    H5FD_FILE_IMAGE_OP_FILE_OPEN,
+    H5FD_FILE_IMAGE_OP_FILE_RESIZE,
+    H5FD_FILE_IMAGE_OP_FILE_CLOSE
 }
 
     /*********************/
@@ -455,15 +546,75 @@ align(1)
     }
 }
 
-/*
- * Types of allocation requests. The values larger than H5FD_MEM_DEFAULT
- * should not change other than adding new types to the end. These numbers
- * might appear in files.
- *
- * Note: please change the log VFD flavors array if you change this
- * enumeration.
- */
-enum H5F_mem_t {
+
+struct H5FD_class_t
+{
+  const(char)* name;
+  haddr_t maxaddr;
+  H5F_close_degree_t fc_degree;
+  hsize_t function (H5FD_t*) sb_size;
+  herr_t function (H5FD_t*, char*, ubyte*) sb_encode;
+  herr_t function (H5FD_t*, const(char)*, const(ubyte)*) sb_decode;
+  size_t fapl_size;
+  void* function (H5FD_t*) fapl_get;
+  void* function (const(void)*) fapl_copy;
+  herr_t function (void*) fapl_free;
+  size_t dxpl_size;
+  void* function (const(void)*) dxpl_copy;
+  herr_t function (void*) dxpl_free;
+  H5FD_t* function (const(char)*, uint, hid_t, haddr_t) open;
+  herr_t function (H5FD_t*) close;
+  int function (const(H5FD_t)*, const(H5FD_t)*) cmp;
+  herr_t function (const(H5FD_t)*, c_ulong*) query;
+  herr_t function (const(H5FD_t)*, H5FD_mem_t*) get_type_map;
+  haddr_t function (H5FD_t*, H5FD_mem_t, hid_t, hsize_t) alloc;
+  herr_t function (H5FD_t*, H5FD_mem_t, hid_t, haddr_t, hsize_t) free;
+  haddr_t function (const(H5FD_t)*, H5FD_mem_t) get_eoa;
+  herr_t function (H5FD_t*, H5FD_mem_t, haddr_t) set_eoa;
+  haddr_t function (const(H5FD_t)*) get_eof;
+  herr_t function (H5FD_t*, hid_t, void**) get_handle;
+  herr_t function (H5FD_t*, H5FD_mem_t, hid_t, haddr_t, size_t, void*) read;
+  herr_t function (H5FD_t*, H5FD_mem_t, hid_t, haddr_t, size_t, const(void)*) write;
+  herr_t function (H5FD_t*, hid_t, uint) flush;
+  herr_t function (H5FD_t*, hid_t, hbool_t) truncate;
+  herr_t function (H5FD_t*, ubyte*, uint, hbool_t) lock;
+  herr_t function (H5FD_t*, ubyte*, hbool_t) unlock;
+  H5FD_mem_t[7] fl_map;
+}
+
+struct H5FD_free_t
+{
+  haddr_t addr;
+  hsize_t size;
+  H5FD_free_t* next;
+}
+
+struct H5FD_t
+{
+  hid_t driver_id;
+  const(H5FD_class_t)* cls;
+  c_ulong fileno;
+  c_ulong feature_flags;
+  haddr_t maxaddr;
+  haddr_t base_addr;
+  hsize_t threshold;
+  hsize_t alignment;
+}
+
+struct H5FD_file_image_callbacks_t
+{
+  void* function (size_t, H5FD_file_image_op_t, void*) image_malloc;
+  void* function (void*, const(void)*, size_t, H5FD_file_image_op_t, void*) image_memcpy;
+  void* function (void*, size_t, H5FD_file_image_op_t, void*) image_realloc;
+  herr_t function (void*, H5FD_file_image_op_t, void*) image_free;
+  void* function (void*) udata_copy;
+  herr_t function (void*) udata_free;
+  void *udata;
+}
+
+
+alias H5F_mem_t=H5FD_mem_t;
+enum H5FD_mem_t {
     H5FD_MEM_NOLIST     = -1,   /* Data should not appear in the free list.
                                  * Must be negative.
                                  */
@@ -490,7 +641,7 @@ enum H5F_libver_t {
 
     /* Define file format version for 1.8 to prepare for 1.10 release.  
      * (Not used anywhere now)*/
-    // #define H5F_LIBVER_18 H5F_LIBVER_LATEST
+    // alias H5F_LIBVER_18 H5F_LIBVER_LATEST
 
     /* Functions in H5F.c */
 version(Posix) {
@@ -773,50 +924,6 @@ extern(C)
 }
 extern(C)
 {
-
-  /*****************/
-  /* Public Macros */
-  /*****************/
-
-  /*
-   * The library's property list classes
-   */
-  alias   H5P_ROOT = H5P_CLS_ROOT_g;
-  alias H5P_OBJECT_CREATE = H5P_CLS_OBJECT_CREATE_g;
-  alias H5P_FILE_CREATE = H5P_CLS_FILE_CREATE_g;
-  alias H5P_FILE_ACCESS = H5P_CLS_FILE_ACCESS_g;
-  alias H5P_DATASET_CREATE = H5P_CLS_DATASET_CREATE_g;
-  alias H5P_DATASET_ACCESS = H5P_CLS_DATASET_ACCESS_g;
-  alias H5P_DATASET_XFER = H5P_CLS_DATASET_XFER_g;
-  alias H5P_FILE_MOUNT = H5P_CLS_FILE_MOUNT_g;
-  alias H5P_GROUP_CREATE = H5P_CLS_GROUP_CREATE_g;
-  alias H5P_GROUP_ACCESS = H5P_CLS_GROUP_ACCESS_g;
-  alias H5P_DATATYPE_CREATE = H5P_CLS_DATATYPE_CREATE_g;
-  alias H5P_DATATYPE_ACCESS = H5P_CLS_DATATYPE_ACCESS_g;
-  alias H5P_STRING_CREATE = H5P_CLS_STRING_CREATE_g;
-  alias H5P_ATTRIBUTE_CREATE = H5P_CLS_ATTRIBUTE_CREATE_g;
-  alias H5P_OBJECT_COPY = H5P_CLS_OBJECT_COPY_g;
-  alias H5P_LINK_CREATE = H5P_CLS_LINK_CREATE_g;
-  alias H5P_LINK_ACCESS = H5P_CLS_LINK_ACCESS_g;
-
-  /*
-   * The library's default property lists
-   */
-  alias H5P_FILE_CREATE_DEFAULT = H5P_LST_FILE_CREATE_g;
-  alias H5P_FILE_ACCESS_DEFAULT = H5P_LST_FILE_ACCESS_g;
-  alias H5P_DATASET_CREATE_DEFAULT = H5P_LST_DATASET_CREATE_g;
-  alias H5P_DATASET_ACCESS_DEFAULT = H5P_LST_DATASET_ACCESS_g;
-  alias H5P_DATASET_XFER_DEFAULT = H5P_LST_DATASET_XFER_g;
-  alias H5P_FILE_MOUNT_DEFAULT = H5P_LST_FILE_MOUNT_g;
-  alias H5P_GROUP_CREATE_DEFAULT = H5P_LST_GROUP_CREATE_g;
-  alias H5P_GROUP_ACCESS_DEFAULT = H5P_LST_GROUP_ACCESS_g;
-  alias H5P_DATATYPE_CREATE_DEFAULT = H5P_LST_DATATYPE_CREATE_g;
-  alias H5P_DATATYPE_ACCESS_DEFAULT = H5P_LST_DATATYPE_ACCESS_g;
-  alias H5P_ATTRIBUTE_CREATE_DEFAULT = H5P_LST_ATTRIBUTE_CREATE_g;
-  alias H5P_OBJECT_COPY_DEFAULT = H5P_LST_OBJECT_COPY_g;
-  alias H5P_LINK_CREATE_DEFAULT = H5P_LST_LINK_CREATE_g;
-  alias H5P_LINK_ACCESS_DEFAULT = H5P_LST_LINK_ACCESS_g;
-
   /* Common creation order flags (for links in groups and attributes on objects) */
   enum  H5P_CRT_ORDER_TRACKED = 0x0001;
   enum  H5P_CRT_ORDER_INDEXED = 0x0002;

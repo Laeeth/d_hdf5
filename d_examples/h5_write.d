@@ -25,7 +25,7 @@ import hdf5.bindings.api;
 import std.stdio;
 import std.exception;
 
-string H5FILE_NAME="hdf5/SDS.h5";
+string H5FILE_NAME="h5/SDS.h5";
 string DATASETNAME="IntArray";
 enum NX=5;                      /* dataset dimensions */
 enum NY=6;
