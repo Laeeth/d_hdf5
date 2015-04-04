@@ -1,4 +1,6 @@
 {
 	"fileVersion": 1,
-	"versions": {}
+	"versions": {
+		"d_hdf5": "~master"
+	}
 }

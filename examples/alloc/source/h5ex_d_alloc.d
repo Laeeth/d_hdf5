@@ -14,6 +14,7 @@
 
 */
 
+import hdf5.bindings.api;
 import hdf5.bindings.enums;
 import hdf5.wrap;
 import std.stdio;
