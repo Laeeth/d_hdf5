@@ -1,0 +1,12 @@
+{
+	"name": "hdf5_alloc",
+	"targetType": "executable",
+	"description": "HDF5 D example: alloc",
+	"authors": ["HDF5, Laeeth Isharc"],
+	"libs": ["hdf5","hdf5_hl"],
+	"sourcePath": "source/",
+	"includePath": "../../",
+	"dependencies": {
+	"d_hdf5": "~master",
+	}
+}

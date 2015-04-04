@@ -1160,6 +1160,7 @@ enum H5TClass {
     Nclasses                /*this must be last                          */
 }
 
+alias H5T_class_t=H5TClass;
 /* Byte orders */
 enum H5TByteOrder {
     Error      = -1,  /*error                                      */

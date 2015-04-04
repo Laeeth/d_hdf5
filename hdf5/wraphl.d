@@ -20,21 +20,31 @@
 	hdf5.hlwrap - D wrappers for 'high level' C API for HDF5
 */
 
-module hdf5.wraphl;
-import hdf5.hl;
-
+module hdf5.bindings.wraphl;
+import hdf5.bindings.hlapi;
+import hdf5.bindings.api;
+import hdf5.bindings.enums;
+import core.memory:GC;
+import std.conv:to;
 /**
 	Helper Functions
 */
 
 char** toCPointerArray(string[] inp)
 {
-	char **ret=gc.calloc((char *).sizeof);
+	auto ret=cast(char**) GC.calloc((char *).sizeof);
 	foreach(i, item;inp)
-		*(ret+i)=(to!string(item)~"\0").ptr;
+		*(ret+i)=cast(char*)(to!string(item)~"\0").ptr;
 	return ret;
 }
 
+/**
+	So far no real wrapping done here
+	Just copy and paste from main bindings so we have templates
+	for nicer D wrapping
+*/
+
+/+
 /**
 	H5DOpublic.h
 */
@@ -73,7 +83,7 @@ char** toCPointerArray(string[] inp)
 struct H5Image
 {
 
-	void makeImage8Bit(
+	//void makeImage8Bit(
 	herr_t  H5IMmake_image_8bit( hid_t loc_id, const (char*) dset_name, hsize_t width, hsize_t height, const (ubyte*) buffer );
 	herr_t  H5IMmake_image_24bit( hid_t loc_id, const (char*) dset_name, hsize_t width, hsize_t height, const (char*) interlace,
 		const (ubyte*) buffer );
@@ -704,4 +714,4 @@ struct H5Table
 	herr_t  H5TBAget_title( hid_t loc_id, char *table_title );
 	htri_t  H5TBAget_fill(hid_t loc_id, const (char*) dset_name, hid_t dset_id, ubyte *dst_buf);
 
-} // end extern(C)
++/

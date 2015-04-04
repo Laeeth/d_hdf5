@@ -18,6 +18,10 @@
 	hdf5.hl - bindings for 'high level' C API for HDF5
 */
 
+module hdf5.bindings.hlapi;
+import hdf5.bindings.api;
+import hdf5.bindings.enums;
+
 alias hbool_t=int;
 enum VLPT_REMOVED=false;
 
@@ -44,7 +48,7 @@ extern(C)
 	alias DIMENSION_LABELS =		DimensionLabels;
 
 
-	alias H5DS_iterate_t = herr_t  function(hid_t dset, unsigned dim, hid_t scale, void *visitor_data);
+	alias H5DS_iterate_t = herr_t  function(hid_t dset, uint dim, hid_t scale, void *visitor_data);
 	herr_t  H5DSattach_scale( hid_t did, hid_t dsid, uint idx);
 	herr_t  H5DSdetach_scale( hid_t did, hid_t dsid, uint idx);
 	herr_t  H5DSset_scale( hid_t dsid, const (char*) dimname);
@@ -80,7 +84,7 @@ extern(C)
 */
 
 	// Flag definitions for H5LTopen_file_image()
-	enum H5LT_FILE_IMAGE_OPEN_RW	=	0x0001 	// Open image for read-write
+	enum H5LT_FILE_IMAGE_OPEN_RW	=	0x0001; 	// Open image for read-write
 	enum H5LT_FILE_IMAGE_DONT_COPY  =	0x0002; // The HDF5 lib won't copy user supplied image buffer. The same image is open with the
 												// core driver.
 	enum H5LT_FILE_IMAGE_DONT_RELEASE=	0x0004; // The HDF5 lib won't deallocate user supplied image buffer. The user application is responsible.
@@ -132,7 +136,7 @@ extern(C)
 */
  
 	herr_t  H5LTget_dataset_ndims( hid_t loc_id, const (char*) dset_name, int *rank );
-	herr_t  H5LTget_dataset_info( hid_t loc_id, const (char*) dset_name, hsize_t *dims, H5T_class_t *type_class, size_t *type_size );
+	herr_t  H5LTget_dataset_info( hid_t loc_id, const (char*) dset_name, hsize_t *dims, H5TClass *type_class, size_t *type_size );
 	herr_t  H5LTfind_dataset( hid_t loc_id, const (char*) name );
 
 
@@ -150,7 +154,7 @@ extern(C)
 	herr_t  H5LTset_attribute_int( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const int *buffer, size_t size );
 	herr_t  H5LTset_attribute_uint( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const uint *buffer, size_t size );
 	herr_t  H5LTset_attribute_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const long *buffer, size_t size );
-	herr_t  H5LTset_attribute_long_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const long long *buffer, size_t size );
+	herr_t  H5LTset_attribute_long_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const long *buffer, size_t size );
 	herr_t  H5LTset_attribute_ulong( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const ulong *buffer, size_t size );
 	herr_t  H5LTset_attribute_float( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const float *buffer, size_t size );
 	herr_t  H5LTset_attribute_double( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, const double *buffer, size_t size );
@@ -170,7 +174,7 @@ extern(C)
 	herr_t  H5LTget_attribute_int( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, int *data );
 	herr_t  H5LTget_attribute_uint( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, uint *data );
 	herr_t  H5LTget_attribute_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, long *data );
-	herr_t  H5LTget_attribute_long_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, long long *data );
+	herr_t  H5LTget_attribute_long_long( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, long *data );
 	herr_t  H5LTget_attribute_ulong( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, ulong *data );
 	herr_t  H5LTget_attribute_float( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, float *data );
 	herr_t  H5LTget_attribute_double( hid_t loc_id, const (char*) obj_name, const (char*) attr_name, double *data );
@@ -210,7 +214,7 @@ extern(C)
  
 */
 
-	hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags);
+	hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, uint flags);
 
 /**
 	H5PTpublic
