@@ -1,5 +1,5 @@
 /**
-  Ported to D Language by Laeeth Isharc 2014
+  Ported to D Language by Laeeth Isharc 2014, 2015
 
   Copyright by The HDF Group.                                               *
   Copyright by the Board of Trustees of the University of Illinois.         *
@@ -15,25 +15,25 @@
   access to either file, you may request a copy from help@hdfgroup.org.     *
   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 */
-  
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-/*
+import hdf5.wrap;
+import hdf5.bindings.api;
+import hdf5.bindings.enums;
+
+/**
+
  This program reads binary output from h5dump (-b option).
  To use change the following 3 symbols accordingly.
  For example, to read 2 elements of a float type , define
 
-  #define NELMTS     2
-  #define TYPE       float
-  #define FORMAT     "%f "
-
+  enum NELMTS = 2
+  alias TYPE       float
+  enum FORMAT = "%f ";
 */
 
-#define NELMTS     6
-#define TYPE       int
-#define FORMAT     "%d "
+enum NELMTS =      6;
+alias TYPE     =int;
+enum FORMAT     ="%d ";
 
 /*-------------------------------------------------------------------------
  * Function: usage
@@ -48,11 +48,9 @@
  *
  *-------------------------------------------------------------------------
  */
-static void
-usage (void)
+void usage()
 {
- fprintf(stderr, "\
- usage: binread FILE_NAME\n");
+  stderr.writefln("\tusage: binread FILE_NAME\n");
 }
 
 /*-------------------------------------------------------------------------
@@ -63,8 +61,7 @@ usage (void)
  *-------------------------------------------------------------------------
  */
 
-int
-main (int argc, const char *argv[])
+int main (string[] args_
 {
  FILE  *stream;
  int    numread;
@@ -72,7 +69,7 @@ main (int argc, const char *argv[])
  size_t i, nelmts = NELMTS;
  char  *fname=NULL;
 
- if (argc != 2)
+ if (args.length != 2)
  {
   usage();
   exit(1);
