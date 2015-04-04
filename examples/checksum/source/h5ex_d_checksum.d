@@ -14,7 +14,10 @@
   This file is intended for use with HDF5 Library version 1.6
 */
 
+//import hdf5.wrap;
+//import hdf5.bindings.enums;
 import hdf5;
+
 import std.stdio;
 import std.exception;
 
@@ -45,13 +48,13 @@ int main(string[] args)
         case we will make an exception because this filter is an
         optional part of the hdf5 library.
      */
-    auto avail = H5Z.filter_avail(H5Zfilter.Fletcher32);
+    auto avail = H5Z.filter_avail(H5ZFilter.Fletcher32);
     if (!avail)
     {
         writefln("N-Bit filter not available.");
         return 1;
     }
-    H5Z.get_filter_info (H5Zfilter.Fletcher32, &filter_info);
+    H5Z.get_filter_info (H5ZFilter.Fletcher32, &filter_info);
     if ( !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) || !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED) )
     {
         writefln("N-Bit filter not available for encoding and decoding.");
@@ -131,8 +134,9 @@ int main(string[] args)
         case H5ZFilter.Fletcher32:
             writefln("H5Z_FILTER_FLETCHER32");
             break;
-        case H5Zfilter.SZip:
+        case H5ZFilter.SZip:
             writefln("H5Z_FILTER_SZIP");
+            break;
         default:
             assert(0);
     }

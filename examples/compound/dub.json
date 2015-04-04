@@ -1,8 +1,8 @@
 {
-	"name": "hdf5_alloc",
+	"name": "hdf5_compound",
 	"targetType": "executable",
 	"buildType": "release",
-	"description": "HDF5 D example: alloc",
+	"description": "HDF5 D example: compound",
 	"authors": ["HDF5, Laeeth Isharc"],
 	"sourcePath": "source/",
 	"importPaths": ["/opt/d_hdf5/"],

@@ -28,6 +28,7 @@
 
 import hdf5.wrap;
 import hdf5.bindings.enums;
+import std.file:exists,mkdir;
 import std.stdio;
 import std.exception;
 import std.string;
@@ -61,7 +62,7 @@ int main(string[] args)
    float[ADIM2][ADIM1] matrix; /* Attribute data */
 
    herr_t  ret;                /* Return value */
-   H5O_info_t oinfo;           /* Object info */
+   H5OInfo oinfo;           /* Object info */
    char    string_out[80];     /* Buffer to read string attribute back */
    int     point_out;          /* Buffer to read scalar attribute back */
 
@@ -70,6 +71,8 @@ int main(string[] args)
    int point = 1;                         /* Value of the scalar attribute */
    immutable char* stringattrib = toStringz("ABCD");                /* Value of the string attribute */
 
+   if (!exists("h5"))
+      mkdir("h5");
 
    foreach(i;0..ADIM1)
        foreach(j;0..ADIM2)

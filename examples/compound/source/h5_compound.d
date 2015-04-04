@@ -20,20 +20,25 @@
   and read back fields' subsets.
 */ 
 
-import hdf5.wrap;
-import hdf5.bindings.enums;
+import hdf5;
+//import hdf5.wrap;
+//import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 import std.string;
 import std.conv;
+import std.file:exists,mkdir;
 
-string H5FILE_NAME = "h5/SDScompound.h5";
+enum H5Dir="h5";
+string H5FILE_NAME = H5Dir~"/"~"SDScompound.h5";
 string DATASETNAME  ="ArrayOfStructures";
 enum LENGTH =10LU;
 enum RANK          =1;
 
 int main(string[] args)
 {
+    if (!exists(H5Dir))
+        mkdir(H5Dir);
     writefln("* First structure  and dataset");
     struct s1_t {
 	   int    a;
@@ -47,7 +52,7 @@ int main(string[] args)
     struct s2_t {
     	double c;
     	int    a;
-    };
+    }
     s2_t[LENGTH] s2;
     hid_t      s2_tid;    /* Memory datatype handle */
 
