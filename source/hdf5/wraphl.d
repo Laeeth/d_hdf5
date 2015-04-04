@@ -20,7 +20,7 @@
 	hdf5.hlwrap - D wrappers for 'high level' C API for HDF5
 */
 
-module hdf5.bindings.wraphl;
+module hdf5.wraphl;
 import hdf5.bindings.hlapi;
 import hdf5.bindings.api;
 import hdf5.bindings.enums;

@@ -20,9 +20,9 @@
   and read back fields' subsets.
 */ 
 
-import hdf5;
-//import hdf5.wrap;
-//import hdf5.bindings.enums;
+//import hdf5;
+import hdf5.wrap;
+import hdf5.bindings.enums;
 import std.stdio;
 import std.exception;
 import std.string;
