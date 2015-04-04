@@ -318,7 +318,8 @@ struct H5D
   {
     throwOnError(H5Dfill(fill, fill_type, buf, buf_type, space));
   }
-  void set_extent(hid_t dset_id, const hsize_t size[])
+
+  void set_extent(hid_t dset_id, const hsize_t[] size)
   {
       throwOnError(H5Dset_extent(dset_id, cast(hsize_t*)size));
   }
@@ -581,7 +582,7 @@ struct H5I
  
   string get_name(hid_t id)
   {
-    char buf[2048];
+    char[2048] buf;
     if(H5Iget_name(id,cast(char*)buf,buf.length)<=0)
       return "";
     else
@@ -1108,7 +1109,7 @@ struct H5P
   }
  
  
-  void set_filter(hid_t plist_id, H5ZFilter filter, uint flags, size_t cd_nelmts, const uint c_values[])
+  void set_filter(hid_t plist_id, H5ZFilter filter, uint flags, size_t cd_nelmts, const uint[] c_values)
   {
     throwOnError(H5Pset_filter(plist_id,filter,flags,cd_nelmts,cast(const uint*)&c_values));
   }
@@ -1120,13 +1121,13 @@ struct H5P
   }
  
  
-  H5ZFilter get_filter2(hid_t plist_id, uint filter, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[], uint *filter_config /*out*/)
+  H5ZFilter get_filter2(hid_t plist_id, uint filter, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint[] cd_values/*out*/, size_t namelen, char[] name, uint *filter_config /*out*/)
   {
     return H5Pget_filter2(plist_id,filter,flags/*out*/,cd_nelmts/*out*/,cast(uint*)&cd_values/*out*/,namelen,cast(char*)&name,filter_config);
   }
  
  
-  void get_filter_by_id2(hid_t plist_id, H5ZFilter id, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[]/*out*/, uint *filter_config/*out*/)
+  void get_filter_by_id2(hid_t plist_id, H5ZFilter id, uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint[] cd_values/*out*/, size_t namelen, char[] name/*out*/, uint *filter_config/*out*/)
   {
     throwOnError(H5Pget_filter_by_id2(plist_id,id,flags/*out*/,cd_nelmts/*out*/,cast(uint*)&cd_values/*out*/,namelen,cast(char*)&name/*out*/,filter_config));
   }
@@ -2169,9 +2170,9 @@ struct H5T
   }
  
  
-  static hid_t array_create2(hid_t base_id, uint ndims, const hsize_t dim[/* ndims */])
+  static hid_t array_create2(hid_t base_id, uint ndims, const hsize_t[] dim)
   {
-    return H5Tarray_create2(base_id,ndims,dim);
+    return H5Tarray_create2(base_id,ndims,cast(hsize_t*)dim.ptr);
   }
  
  

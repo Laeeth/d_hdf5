@@ -392,8 +392,9 @@ extern(C)
     herr_t H5Pinsert1(hid_t plist_id, const (char*)name, size_t size, void *value, H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
         H5P_prp_delete_func_t prp_delete, H5P_prp_copy_func_t prp_copy, H5P_prp_close_func_t prp_close);
     H5ZFilter H5Pget_filter1(hid_t plist_id, uint filter, uint *flags/*out*/, size_t *cd_nelmts/*out*/,
-        uint cd_values[]/*out*/, size_t namelen, char name[]); herr_t H5Pget_filter_by_id1(hid_t plist_id, H5ZFilter id,
-        uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint cd_values[]/*out*/, size_t namelen, char name[]/*out*/);
+        uint* cd_values/*out*/, size_t namelen, char* name);
+    herr_t H5Pget_filter_by_id1(hid_t plist_id, H5ZFilter id,
+        uint *flags/*out*/, size_t *cd_nelmts/*out*/, uint* cd_values/*out*/, size_t namelen, char* name/*out*/);
 }
 
 
@@ -924,7 +925,7 @@ dupes
 
     /* Operations defined on array datatypes */
     hid_t H5Tarray_create2(hid_t base_id, uint ndims,
-                const hsize_t dim[/* ndims */]);
+                const hsize_t* dim);
     int H5Tget_array_ndims(hid_t type_id);
     int H5Tget_array_dims2(hid_t type_id, hsize_t* dims);
 
