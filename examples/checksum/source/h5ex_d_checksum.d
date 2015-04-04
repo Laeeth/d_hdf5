@@ -20,10 +20,11 @@ import hdf5;
 
 import std.stdio;
 import std.exception;
-
+import std.file: exists,mkdir;
 alias hsize_t=ulong;
 
-string fname="h5/checksum.h5";
+enum H5Dir="../h5data";
+string fname=H5Dir ~ "/checksum.h5";
 string DATASET= "DS1";
 enum DIM0            =32;
 enum DIM1            =64;
@@ -48,6 +49,9 @@ int main(string[] args)
         case we will make an exception because this filter is an
         optional part of the hdf5 library.
      */
+
+    if (!exists(H5Dir))
+      mkdir(H5Dir);
     auto avail = H5Z.filter_avail(H5ZFilter.Fletcher32);
     if (!avail)
     {

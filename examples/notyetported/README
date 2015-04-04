@@ -1,0 +1,4 @@
+The following files are either C examples not yet ported, or D examples that were ported but do not yet
+work (sometimes they did work but have been broken due to symbol changes).
+
+I will get them running when I have time

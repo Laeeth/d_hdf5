@@ -1,0 +1,13 @@
+{
+	"name": "hdf5_table",
+	"targetType": "executable",
+	"buildType": "release",
+	"description": "HDF5 D example: table",
+	"authors": ["HDF5, Laeeth Isharc"],
+	"sourcePath": "source/",
+	"importPaths": ["/opt/d_hdf5/"],
+	"dependencies": {
+		"d_hdf5": "~master",
+	},
+	"dflags": ["-I/opt/d_hdf5/source","-L/lib/libhdf5.so","-L/lib/libhdf5_hl.so"],
+}

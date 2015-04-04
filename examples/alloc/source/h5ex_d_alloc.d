@@ -18,8 +18,10 @@ import hdf5.bindings.api;
 import hdf5.bindings.enums;
 import hdf5.wrap;
 import std.stdio;
+import std.file;
 
-string f_name="h5/h5ex_d_alloc.h5";
+enum H5Dir="../h5data";
+string f_name=H5Dir ~ "/h5ex_d_alloc.h5";
 string DATASET1= "DS1";
 string DATASET2="DS2";
 enum DIM0=4;
@@ -30,6 +32,8 @@ int main (string[] args)
 {
     hsize_t[2] dims = [DIM0, DIM1];
     int[DIM1][DIM0] wdata;  // write buffer
+    if (!exists(H5Dir))
+        mkdir(H5Dir);
 
     // Initialize data.
     foreach(i;0.. DIM0)

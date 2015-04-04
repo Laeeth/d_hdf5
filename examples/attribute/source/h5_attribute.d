@@ -33,7 +33,8 @@ import std.stdio;
 import std.exception;
 import std.string;
 
-string H5FILE_NAME="h5/Attributes.h5";
+enum H5Dir="../h5data";
+string H5FILE_NAME=H5Dir ~ "/Attributes.h5";
 enum RANK=  1;   /* Rank and size of the dataset  */
 enum SIZE = 7;
 
@@ -63,7 +64,7 @@ int main(string[] args)
 
    herr_t  ret;                /* Return value */
    H5OInfo oinfo;           /* Object info */
-   char    string_out[80];     /* Buffer to read string attribute back */
+   char[80]    string_out;     /* Buffer to read string attribute back */
    int     point_out;          /* Buffer to read scalar attribute back */
 
    // Data initialization.
@@ -71,8 +72,8 @@ int main(string[] args)
    int point = 1;                         /* Value of the scalar attribute */
    immutable char* stringattrib = toStringz("ABCD");                /* Value of the string attribute */
 
-   if (!exists("h5"))
-      mkdir("h5");
+   if (!exists(H5Dir))
+      mkdir(H5Dir);
 
    foreach(i;0..ADIM1)
        foreach(j;0..ADIM2)

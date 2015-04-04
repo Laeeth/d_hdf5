@@ -29,7 +29,7 @@ import std.string;
 import std.conv;
 import std.file:exists,mkdir;
 
-enum H5Dir="h5";
+enum H5Dir="../h5data";
 string H5FILE_NAME = H5Dir~"/"~"SDScompound.h5";
 string DATASETNAME  ="ArrayOfStructures";
 enum LENGTH =10LU;
