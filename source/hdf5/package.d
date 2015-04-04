@@ -1,3 +1,4 @@
+module hdf5;
 public import hdf5.bindings.api;
 public import hdf5.bindings.enums;
 public import hdf5.bindings.hlapi;
