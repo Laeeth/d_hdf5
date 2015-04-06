@@ -418,6 +418,9 @@ extern(C)
     hssize_t H5Fget_freespace(hid_t file_id);
     herr_t H5Fget_filesize(hid_t file_id, hsize_t *size);
     ssize_t H5Fget_file_image(hid_t file_id, void * buf_ptr, size_t buf_len);
+    herr_t H5Fget_mdc_config(hid_t file_id, H5AC_cache_config_t * config_ptr);
+    herr_t H5Fset_mdc_config(hid_t file_id, H5AC_cache_config_t * config_ptr);
+
     herr_t H5Fget_mdc_hit_rate(hid_t file_id, double * hit_rate_ptr);
     herr_t H5Fget_mdc_size(hid_t file_id, size_t * max_size_ptr, size_t * min_clean_size_ptr, size_t * cur_size_ptr, int * cur_num_entries_ptr);
     herr_t H5Freset_mdc_hit_rate_stats(hid_t file_id);
