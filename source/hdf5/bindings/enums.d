@@ -644,7 +644,28 @@ enum H5F_libver_t {
     // alias H5F_LIBVER_18 H5F_LIBVER_LATEST
 
     /* Functions in H5F.c */
-version(Posix) {
+struct H5GStatType
+{
+    ulong[2] fileno;  /*file number     */
+    ulong[2] objno; /*object number     */
+    uint nlink;    /*number of hard links to object*/
+    H5GObjectType  type;   /*basic object type   */
+    time_t    mtime;    /*modification time   */
+    size_t    linklen;  /*symbolic link value length  */
+    H5OStatType          ohdr;           /* Object header information    */
+}
+
+enum H5GObjectType
+{
+    Unknown = -1,   /* Unknown object type    */
+    Group,            /* Object is a group    */
+    Dataset,    /* Object is a dataset    */
+    Type,     /* Object is a named data type  */
+    Link,           /* Object is a symbolic link  */
+    UserDefinedLink,           /* Object is a user-defined link */
+    Reserved5,   /* Reserved for future use  */
+    Reserved6,   /* Reserved for future use  */
+    Reserved7    /* Reserved for future use  */
 }
 
 enum H5GStorageType {
@@ -852,6 +873,13 @@ extern(C)
   /*******************/
   /* Public Typedefs */
   /*******************/
+struct H5OStatType
+{
+    hsize_t size;               /* Total size of object header in file */
+    hsize_t free;               /* Free space within object header */
+    uint nmesgs;            /* Number of object header messages */
+    uint nchunks;           /* Number of object header chunks */
+}
 
   /* Types of objects in file */
   enum H5OType {

@@ -45,12 +45,14 @@ char** toCPointerArray(string[] inp)
 */
 
 /+
-/**
-	H5DOpublic.h
-*/
 
-	herr_t H5DOwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint filters, const hsize_t *offset, size_t data_size, const (void*) buf);
-
+struct H5DO
+{
+	void write_chunk(hidh_t dset_id, hid_t dxpl_id, uint filters, const hsize_t *offset, size_t data_size, const (void*) buf)
+	{
+		enforce(H5DOwrite_chunk(dset_id,dxpl_id,filters,offset,data_size,buf)
+	}
+}
 /**
 	H5DSpublic
 */

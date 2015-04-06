@@ -430,6 +430,9 @@ extern(C)
 }
 extern(C)
 {
+  alias H5GLinkType=H5LType;
+  alias H5GIterateType=herr_t function(hid_t group, const char *name, void *op_data);
+
   hid_t H5Gcreate2(hid_t loc_id, const (char*)name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id);
   hid_t H5Gcreate_anon(hid_t loc_id, hid_t gcpl_id, hid_t gapl_id);
   hid_t H5Gopen2(hid_t loc_id, const (char*)name, hid_t gapl_id);
@@ -438,6 +441,22 @@ extern(C)
   herr_t H5Gget_info_by_name(hid_t loc_id, const(char *)name, H5GInfo *ginfo, hid_t lapl_id);
   herr_t H5Gget_info_by_idx(hid_t loc_id, const(char *)group_name, H5Index idx_type, H5IterOrder order, hsize_t n, H5GInfo *ginfo, hid_t lapl_id);
   herr_t H5Gclose(hid_t group_id);
+
+  hid_t H5Gcreate1(hid_t loc_id, const(char*) name, size_t size_hint);
+  hid_t H5Gopen1(hid_t loc_id, const(char*) name);
+  herr_t H5Glink(hid_t cur_loc_id, H5GLinkType type, const(char*) cur_name, const(char*) new_name);
+  herr_t H5Glink2(hid_t cur_loc_id, const(char*) cur_name, H5GLinkType type, hid_t new_loc_id, const(char*) new_name);
+  herr_t H5Gmove(hid_t src_loc_id, const(char*) src_name, const(char*) dst_name);
+  herr_t H5Gmove2(hid_t src_loc_id, const(char*) src_name, hid_t dst_loc_id, const(char*) dst_name);
+  herr_t H5Gunlink(hid_t loc_id, const(char*) name);
+  herr_t H5Gget_linkval(hid_t loc_id, const(char*) name, size_t size, char *buf/*out*/);
+  herr_t H5Gset_comment(hid_t loc_id, const(char*) name, const(char*) comment);
+  int H5Gget_comment(hid_t loc_id, const(char*) name, size_t bufsize, char *buf);
+  herr_t H5Giterate(hid_t loc_id, const(char*) name, int *idx, H5GIterateType op, void *op_data);
+  herr_t H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs);
+  herr_t H5Gget_objinfo(hid_t loc_id, const(char*) name, hbool_t follow_link, H5GStatType *statbuf/*out*/);
+  ssize_t H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char* name, size_t size);
+  H5GObjectType H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx);
 }
 
   extern(C)
