@@ -17,13 +17,58 @@ Ported to D by Laeeth Isharc 2014, 2015.  Linux only I am afraid, although it sh
                 to HDF5 dataset types is pretty basic, but usable.
     3. Ports of the example code from C to D.  Only some these have been finished, but they are enough to demonstrate the basic functionality.  See examples/*.d for the examples that work.  (To build run make or dub in the root directory).  Example C code that has not yet been ported is in the examples/notyetported/ directory
 
-To Do
+* To Do
     1.  Better exception handling that calls HDF5 to get error message and returns appropriate subclass of Exception
     2.  Unit tests (use example to build them)
     3.  Refinement of use of CTFE - better checking of types, allow tables of higher dimensions, allow reading tables where the record type is not known beforehand.
     4.  Integration with D dataframe library
     5.  I have started wrapping the high-level library.  The bindings are more or less done.  The wrappings I have only made a start on and for now the code is commented out.
 
+Sample Use Code (Ported from the C example)
+===========================================
+import hdf5.hdf5;
+import std.stdio;
+import std.exception;
+
+```D
+enum filename="dset.h5";
+
+int main(string[] args)
+{
+
+   int[600][1000] dset_data;
+
+   H5open();
+   // Initialize the dataset.
+   foreach(i;0..dset_data.length)
+      foreach(j;0..dset_data[0].length)
+         dset_data[i][j] = cast(int)i * cast(int)dset_data.length + cast(int)j + 1;
+
+   writefln("* opening %s",filename);
+   // Open an existing file.
+   auto file_id = H5F.open(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+
+   writefln("* opening /dset");
+   // Open an existing dataset. 
+   auto dataset_id = H5D.open2(file_id, "/dset", H5P_DEFAULT);
+
+  // Write the dataset. 
+   writefln("* writing dataset");
+   H5D.write(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)dset_data.ptr);
+   writefln("* reading dataset");
+
+   H5D.read(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)&dset_data).ptr;
+
+   writefln("* closing dataset");
+   /* Close the dataset. */
+   H5D.close(dataset_id);
+   writefln("* closing file");
+   /* Close the file. */
+   H5F.close(file_id);
+   H5close();
+  return 0;
+}
+```
 Getting Started
 ===============
 

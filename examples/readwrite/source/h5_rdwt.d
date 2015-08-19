@@ -47,10 +47,10 @@ int main(string[] args)
 
    /* Write the dataset. */
    writefln("* writing dataset");
-   H5D.write(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)dset_data);
+   H5D.write(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)dset_data.ptr);
    writefln("* reading dataset");
 
-   H5D.read(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)&dset_data);
+   H5D.read(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, cast(ubyte*)&dset_data).ptr;
 
    writefln("* closing dataset");
    /* Close the dataset. */
