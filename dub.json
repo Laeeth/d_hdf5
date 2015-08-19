@@ -1,0 +1,14 @@
+{
+	"name": "d_hdf5",
+	"description": "HDF5 bindings and wrappers for the D Programming Language.",
+	"authors": ["Laeeth Isharc"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"sourceLibrary",
+	"dependencies": {
+	},
+	"systemDependencies": "requires HDF5 1.8.15.patch-1 versions of libhdf5 and libhdf5_hl",
+	"sourcePath": "hdf5",
+	"importPath": "hdf5",
+}

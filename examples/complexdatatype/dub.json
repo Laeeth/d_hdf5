@@ -1,0 +1,17 @@
+{
+	"name": "complexdatatype",
+	"description": "
+	This example shows how to create a compound data type,
+	write an array which has the compound data type to the file,
+  	and read back fields' subsets.
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

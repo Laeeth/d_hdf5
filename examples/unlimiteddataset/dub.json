@@ -1,0 +1,22 @@
+{
+	"name": "unlimiteddataset",
+	"description": "
+  This example shows how to create and extend an unlimited
+  dataset.  The program first writes integers to a dataset
+  with dataspace dimensions of DIM0xDIM1, then closes the
+  file.  Next, it reopens the file, reads back the data,
+  outputs it to the screen, extends the dataset, and writes
+  new data to the extended portions of the dataset.  Finally
+  it reopens the file again, reads back the data, and
+  outputs it to the screen.
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

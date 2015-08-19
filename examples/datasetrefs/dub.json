@@ -1,0 +1,25 @@
+{
+	"name": "datasetrefs",
+	"description": "
+	 This program shows how to create, store and dereference references
+    to the dataset regions.
+
+    It creates a file and writes a two dimensional integer dataset
+    to it. Then it creates a dataset to store region references in. It
+    stores references to a hyperslab and 3 points selected (for the
+    integer dataset previously created).
+
+    It then reopens the references dataset, reads and dereferences the
+    region references, and then reads and displays the selected hyperslab
+    and selected elements data from the integer dataset.
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

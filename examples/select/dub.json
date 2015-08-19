@@ -1,0 +1,22 @@
+{
+	"name": "select",
+	"description": "
+	*  This program shows how the H5Sselect_hyperslab and H5Sselect_elements
+ *  functions are used to write selected data from memory to the file.
+ *  Program takes 48 elements from the linear buffer and writes them into
+ *  the matrix using 3x2 blocks, (4,3) stride and (2,4) count.
+ *  Then four elements  of the matrix are overwritten with the new values and
+ *  file is closed. Program reopens the file and selects the union of two
+ *  hyperslabs in the dataset in the file. Then it reads the selection into the
+ *  memory dataset preserving the shape of the selection.
+*",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

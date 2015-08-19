@@ -1,0 +1,31 @@
+{
+	"name": "dtransform",
+	"description": "
+	  This example demonstrates how the data transform features of
+  HDF5 works.
+ 
+  (1)
+   The test first writes out data, with no data transform set.
+   Then, the test reads back this data with a data transform applied.
+ 
+  (2)
+   Then, the test writes a new set of data, with a data transform set.
+   Then, the test reads this new set of data, without a data set.
+ 
+  (3)
+   Lastly, the test reads the previous set of data (that was written out
+   with a data transform) with a data transform set for the read.
+ 
+   (4)
+   Get the transform from the property using H5Pget_data_transform.
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

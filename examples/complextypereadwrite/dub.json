@@ -1,0 +1,35 @@
+{
+	"name": "complexdatatypereadwrite",
+	"description": "illustrates the usage of the H5A Interface functions: based on h5_attribute.c
+
+  This example shows how to read and write a complex
+  compound datatype to a dataset.  The program first writes
+  complex compound structures to a dataset with a dataspace
+  of DIM0, then closes the file.  Next, it reopens the file,
+  reads back selected fields in the structure, and outputs
+  them to the screen.
+
+  Unlike the other datatype examples, in this example we
+  save to the file using native datatypes to simplify the
+  type definitions here.  To save using standard types you
+  must manually calculate the sizes and offsets of compound
+  types as shown in h5ex_t_cmpd.c, and convert enumerated
+  values as shown in h5ex_t_enum.c.
+
+  The datatype defined here consists of a compound
+  containing a variable-length list of compound types, as
+  well as a variable-length string, enumeration, double
+  array, object reference and region reference.  The nested
+  compound type contains an int, variable-length string and
+  two doubles.
+*/	",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

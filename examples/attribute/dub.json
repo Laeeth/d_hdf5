@@ -1,0 +1,24 @@
+{
+	"name": "attribute",
+	"description": "illustrates the usage of the H5A Interface functions: based on h5_attribute.c
+
+		This program illustrates the usage of the H5A Interface functions.
+		It creates and writes a dataset, and then creates and writes array,
+		scalar, and string attributes of the dataset.
+		Program reopens the file, attaches to the scalar attribute using
+		attribute name and reads and displays its value. Then index of the
+		third attribute is used to read and display attribute values.
+		The H5Aiterate function is used to iterate through the dataset attributes,
+		and display their names. The function is also reads and displays the values
+		of the array attribute.
+	",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

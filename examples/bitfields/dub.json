@@ -1,0 +1,20 @@
+{
+	"name": "bitfields",
+	"description": "
+	Based on h5ex_t_bit.c
+		This example shows how to read and write bitfield
+		datatypes to a dataset.  The program first writes bit
+		fields to a dataset with a dataspace of DIM0xDIM1, then
+		closes the file.  Next, it reopens the file, reads back
+		the data, and outputs it to the screen.
+	",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

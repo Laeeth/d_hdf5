@@ -1,0 +1,23 @@
+{
+	"name": "checksum",
+	"description": "
+		Based on h5ex_d_checksum.c
+		  This example shows how to read and write data to a dataset
+		  using the Fletcher32 checksum filter.  The program first
+		  checks if the Fletcher32 filter is available, then if it
+		  is it writes integers to a dataset using Fletcher32, then
+		  closes the file.  Next, it reopens the file, reads back
+		  the data, checks if the filter detected an error and
+		  outputs the type of filter and the maximum value in the
+		  dataset to the screen.
+	",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

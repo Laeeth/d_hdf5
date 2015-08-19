@@ -1,0 +1,20 @@
+{
+	"name": "traverseobjects",
+	"description": "
+
+		  This example shows how to recursively traverse a file
+		  using H5Ovisit and H5Lvisit.  The program prints all of
+		  the objects in the file specified in FILE, then prints all
+		  of the links in that file.  
+
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

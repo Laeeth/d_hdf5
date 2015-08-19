@@ -1,0 +1,17 @@
+{
+	"name": "externallinks",
+	"description": "
+	This program demonstrates how to create and use external links in HDF5.
+ 	External links point from one HDF5 file to an object (Group, Dataset, or
+ 	committed Datatype) in another file.
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

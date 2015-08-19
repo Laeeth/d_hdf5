@@ -1,0 +1,20 @@
+{
+	"name": "objrefs",
+	"description": "
+	       This program illustrates how references to objects can be used.
+         Program creates a dataset and a group in a file. It also creates
+         second dataset, and references to the first dataset and the group
+         are stored in it.
+         Program reopens the file and reads dataset with the references.
+         References are used to open the objects. Information about the
+         objects is displayed.",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

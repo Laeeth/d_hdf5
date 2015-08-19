@@ -1,0 +1,23 @@
+{
+	"name": "traits",
+	"description": "
+		Basic conversion of HDF5 types to D types and back
+		Not recursive so D structs must be built of native D types
+	
+		To load HDF5 series into an array of D type T:
+			auto results=slurpDataspaceVector!T(string filename, string dataset name);
+
+		To save an array of D type T to an HDF5 data series:
+			dumpDataSpaceVector!T(string filename,string datasetName, T[] data,bool append)
+			append=true means append; otherwise overwrite
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"name": "allocationtime",
+	"description": "
+		Based on h5ex_d_alloc.c
+		  This example shows how to set the space allocation time
+		  for a dataset.  The program first creates two datasets,
+		  one with the default allocation time (late) and one with
+		  early allocation time, and displays whether each has been
+		  allocated and their allocation size.  Next, it writes data
+		  to the datasets, and again displays whether each has been
+		  allocated and their allocation size.",
+		"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}

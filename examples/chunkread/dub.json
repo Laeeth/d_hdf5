@@ -1,0 +1,16 @@
+{
+	"name": "chunkread",
+	"description": "
+		This example shows how to read data from a chunked dataset.
+	  	We will read from the file created by h5_extend_write.d
+",
+	"authors": ["Laeeth Isharc,HDF5 Group"],
+	"homepage": "https://github.com/Laeeth/d_hdf5",
+	"license": "Boost-1.0",
+	"libs":["hdf5","hdf5_hl"],
+	"targetType":"executable",
+	"targetPath": "../../build",
+	"dependencies": {
+		"d_hdf5": "~master"
+	}
+}
