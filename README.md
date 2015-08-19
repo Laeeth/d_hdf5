@@ -26,11 +26,12 @@ Ported to D by Laeeth Isharc 2014, 2015.  Linux only I am afraid, although it sh
 
 Sample Use Code (Ported from the C example)
 ===========================================
+
+```D
 import hdf5.hdf5;
 import std.stdio;
 import std.exception;
 
-```D
 enum filename="dset.h5";
 
 int main(string[] args)
