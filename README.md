@@ -15,7 +15,7 @@ Ported to D by Laeeth Isharc 2014, 2015.  Linux only I am afraid, although it sh
             - over time I will work on developing these, but you can see code for dumping and retrieving an array of structs to/from an hdf5
                 dataset in the file examples/traits.d.  Compile-time reflection is used to infer the format of the data set.  The mapping from D types
                 to HDF5 dataset types is pretty basic, but usable.
-    3. Ports of the example code from C to D.  Only some these have been finished, but they are enough to demonstrate the basic functionality.  See examples/*.d for the examples that work.  (To build run make or dub in the root directory).  Example C code that has not yet been ported is in the examples/notyetported/ directory
+    3. Ports of the example code from C to D.  Only some these have been finished, but they are enough to demonstrate the basic functionality.  See examples/*.d for the examples that work.  (To build run make or dub in the root directory).  Example C code that has not yet been ported is in the old/examples/notyetported/ directory
 
 * To Do
     1.  Better exception handling that calls HDF5 to get error message and returns appropriate subclass of Exception
