@@ -1,6 +1,8 @@
 d_hdf5
 =======
 
+[![Join the chat at https://gitter.im/Laeeth/d_hdf5](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Laeeth/d_hdf5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 D bindings and wrappers for the HDF5 scientific data format.  These differ from another project in being more C oriented and not exposing the Byzantine HDF5 class structure.  I think aldacron's version may be more object-oriented, although I have not looked at it.  Link (here)[https://github.com/aldanor/h5d]
 
 Relatively raw stage - there may be some bugs still, although it does work for my own projects.
