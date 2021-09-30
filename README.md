@@ -3,13 +3,13 @@ d_hdf5
 
 [![Join the chat at https://gitter.im/Laeeth/d_hdf5](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Laeeth/d_hdf5?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-D bindings and wrappers for the HDF5 scientific data format.  These differ from another project in being more C oriented and not exposing the Byzantine HDF5 class structure.  I think aldacron's version may be more object-oriented, although I have not looked at it.  Link (here)[https://github.com/aldanor/h5d]
+D bindings and wrappers for the HDF5 scientific data format.  These differ from another project in being more C oriented and not exposing the Byzantine HDF5 class structure.  I think aldacron's version may be more object-oriented, although I have not looked at it.  Link [here](https://github.com/aldanor/h5d)
 
 Relatively raw stage - there may be some bugs still, although it does work for my own projects.
 
 Ported to D by Laeeth Isharc 2014, 2015.  Linux only I am afraid, although it should not be much work to port to Windows.
 
-* Borrowed heavily from C API declarations in [https://github.com/SFrijters/hdf5-d](Stefan Frijters bindings for D)
+* Borrowed heavily from C API declarations in [Stefan Frijters bindings for D](https://github.com/SFrijters/hdf5-d)
 * Three parts:
     1. Low-level C bindings: hdf5/bindings/api.d and hdf5/bindings/enum.d
     2. High-level D wrappers:  hdf5/wrap.d
