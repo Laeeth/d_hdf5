@@ -9,6 +9,6 @@
 	"dependencies": {
 	},
 	"systemDependencies": "requires HDF5 1.8.15.patch-1 versions of libhdf5 and libhdf5_hl",
-	"sourcePath": "hdf5",
-	"importPath": "hdf5",
+	"sourcePaths": [ "hdf5" ],
+	"importPaths": [ "hdf5" ],
 }
