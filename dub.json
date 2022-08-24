@@ -6,8 +6,6 @@
 	"license": "Boost-1.0",
 	"libs":["hdf5","hdf5_hl"],
 	"targetType":"sourceLibrary",
-	"dependencies": {
-	},
 	"systemDependencies": "requires HDF5 1.8.15.patch-1 versions of libhdf5 and libhdf5_hl",
 	"sourcePaths": [ "hdf5" ],
 	"importPaths": [ "hdf5" ],
