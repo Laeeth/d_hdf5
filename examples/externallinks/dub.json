@@ -12,6 +12,6 @@
 	"targetType":"executable",
 	"targetPath": "../../build",
 	"dependencies": {
-		"d_hdf5": "~master"
+		"d_hdf5": { "path": "../../" }
 	}
 }
